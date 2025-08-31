@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互助營造 - 人力招聘管理系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        /* 側邊導航 */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #2c5aa0 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: #f0f4f8;
+            border-left-color: #2b6cb0;
+        }
+
+        .nav-item.active {
+            background: #f0f4f8;
+            border-left-color: #2b6cb0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* 版權資訊 */
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            background: #f7fafc;
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .sidebar-footer div {
+            margin-bottom: 4px;
+        }
+
+        /* 主要內容區域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #2c5aa0 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        /* 招聘概覽卡片 */
+        .recruitment-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2b6cb0, #2c5aa0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-change.positive {
+            color: #38a169;
+        }
+
+        .card-change.negative {
+            color: #e53e3e;
+        }
+
+        .card-change.neutral {
+            color: #718096;
+        }
+
+        /* 主要內容網格 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 職位需求表格 */
+        .job-requirements-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .job-requirements-table th,
+        .job-requirements-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        .job-requirements-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .job-title {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .urgency-high {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .urgency-medium {
+            background: #feebc8;
+            color: #dd6b20;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .urgency-low {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        /* AI推薦候選人 */
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .candidate-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #2b6cb0;
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .candidate-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .match-score {
+            background: #2b6cb0;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .candidate-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .skill-tag {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .candidate-exp {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* 培訓進度 */
+        .training-item {
+            margin-bottom: 16px;
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .training-name {
+            font-weight: 500;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .training-progress {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2b6cb0, #2c5aa0);
+            transition: width 0.3s ease;
+        }
+
+        /* VR訓練模組 */
+        .vr-training {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .vr-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .vr-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .vr-modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .vr-module {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .vr-module-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .vr-module-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2b6cb0, #2c5aa0);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169, #22543d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #dd6b20, #c05621);
+            color: white;
+        }
+
+        /* 統計圖表容器 */
+        .chart-container {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #e2e8f0, #cbd5e0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .nav-item {
+                min-width: 120px;
+                flex-shrink: 0;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .recruitment-overview {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header {
+                padding: 20px 16px;
+            }
+
+            .status-bar {
+                padding: 12px 16px;
+            }
+            
+            .sidebar-footer {
+                position: relative;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊導航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>人力招聘系統</h3>
+                <p>AI智慧招聘與人才管理平台</p>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchModule('overview')">
+                    <div class="nav-icon">▣</div>
+                    <span>招聘總覽</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('ai-matching')">
+                    <div class="nav-icon">◈</div>
+                    <span>AI智慧配對</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('job-demand')">
+                    <div class="nav-icon">▤</div>
+                    <span>崗位需求預測</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('training')">
+                    <div class="nav-icon">◐</div>
+                    <span>線上培訓</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('vr-training')">
+                    <div class="nav-icon">◑</div>
+                    <span>VR工地訓練</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('talent-management')">
+                    <div class="nav-icon">◒</div>
+                    <span>人才管理</span>
+                </div>
+            </div>
+            
+            <!-- 版權資訊 -->
+            <div class="sidebar-footer">
+                <div>© 2025 互助營造股份有限公司</div>
+                <div>Developed by NUS ASAP Lab</div>
+                <div>版本: 1.1.0</div>
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <div class="header">
+                <h1>互助營造人力招聘管理系統</h1>
+                <p>AI驅動的智慧招聘平台 · 精準配對專業人才 · 提升招聘效率與準確性</p>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="online-dot"></div>
+                    <span>AI系統運行正常</span>
+                </div>
+                <div>
+                    活躍職位：<span id="activeJobs">12</span> 個 | 最後更新：<span id="lastUpdate">2025-01-01 10:30</span>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- 招聘概覽卡片 -->
+                <div class="recruitment-overview">
+                    <div class="overview-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">活躍職位</div>
+                                <div class="card-value">12</div>
+                                <div class="card-change positive">較上月 +3個</div>
+                            </div>
+                            <div class="card-icon">▤</div>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">待面試候選人</div>
+                                <div class="card-value">47</div>
+                                <div class="card-change positive">AI篩選完成</div>
+                            </div>
+                            <div class="card-icon">◉</div>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">本月入職</div>
+                                <div class="card-value">8</div>
+                                <div class="card-change positive">完成培訓 6人</div>
+                            </div>
+                            <div class="card-icon">✓</div>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">平均招聘週期</div>
+                                <div class="card-value">14</div>
+                                <div class="card-change positive">天 (-3天)</div>
+                            </div>
+                            <div class="card-icon">◔</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要內容網格 -->
+                <div class="dashboard-grid">
+                    <!-- 緊急職位需求 -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">緊急職位需求</div>
+                                <div class="section-subtitle">基於專案進度的AI智慧需求分析</div>
+                            </div>
+                        </div>
+
+                        <table class="job-requirements-table">
+                            <thead>
+                                <tr>
+                                    <th>職位</th>
+                                    <th>需求人數</th>
+                                    <th>緊急程度</th>
+                                    <th>技能要求</th>
+                                    <th>預計入職</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="job-title">資深機電工程師</td>
+                                    <td>2人</td>
+                                    <td><span class="urgency-high">緊急</span></td>
+                                    <td>電氣系統、PLC程式設計</td>
+                                    <td>2025-01-15</td>
+                                </tr>
+                                <tr>
+                                    <td class="job-title">外構景觀技師</td>
+                                    <td>5人</td>
+                                    <td><span class="urgency-medium">中等</span></td>
+                                    <td>植栽設計、灌溉系統</td>
+                                    <td>2025-01-20</td>
+                                </tr>
+                                <tr>
+                                    <td class="job-title">鋼筋工</td>
+                                    <td>8人</td>
+                                    <td><span class="urgency-medium">中等</span></td>
+                                    <td>鋼筋綁紮、圖紙識讀</td>
+                                    <td>2025-01-25</td>
+                                </tr>
+                                <tr>
+                                    <td class="job-title">安全監察員</td>
+                                    <td>3人</td>
+                                    <td><span class="urgency-low">一般</span></td>
+                                    <td>安全管理證照</td>
+                                    <td>2025-02-01</td>
+                                </tr>
+                                <tr>
+                                    <td class="job-title">品質檢測員</td>
+                                    <td>2人</td>
+                                    <td><span class="urgency-low">一般</span></td>
+                                    <td>材料檢測、品質控制</td>
+                                    <td>2025-02-05</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary">啟動AI招聘</button>
+                            <button class="btn btn-secondary" style="margin-left: 8px;">需求分析報告</button>
+                        </div>
+                    </div>
+
+                    <!-- AI推薦與培訓狀態 -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">AI智慧推薦</div>
+                                <div class="section-subtitle">高配對度候選人推薦</div>
+                            </div>
+                        </div>
+
+                        <div class="candidate-grid">
+                            <div class="candidate-card">
+                                <div class="candidate-header">
+                                    <div class="candidate-name">李建華</div>
+                                    <div class="match-score">96%</div>
+                                </div>
+                                <div class="candidate-skills">
+                                    <span class="skill-tag">PLC程式設計</span>
+                                    <span class="skill-tag">電氣設計</span>
+                                    <span class="skill-tag">乙級證照</span>
+                                </div>
+                                <div class="candidate-exp">12年機電經驗 | 參與過5個大型專案</div>
+                            </div>
+
+                            <div class="candidate-card">
+                                <div class="candidate-header">
+                                    <div class="candidate-name">張美玲</div>
+                                    <div class="match-score">92%</div>
+                                </div>
+                                <div class="candidate-skills">
+                                    <span class="skill-tag">景觀設計</span>
+                                    <span class="skill-tag">植物配置</span>
+                                    <span class="skill-tag">CAD繪圖</span>
+                                </div>
+                                <div class="candidate-exp">8年景觀經驗 | 擅長外構工程管理</div>
+                            </div>
+
+                            <div class="candidate-card">
+                                <div class="candidate-header">
+                                    <div class="candidate-name">王志明</div>
+                                    <div class="match-score">89%</div>
+                                </div>
+                                <div class="candidate-skills">
+                                    <span class="skill-tag">鋼筋綁紮</span>
+                                    <span class="skill-tag">結構施工</span>
+                                    <span class="skill-tag">工地管理</span>
+                                </div>
+                                <div class="candidate-exp">10年施工經驗 | 曾任工地主管</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px;">
+                            <div class="section-title" style="font-size: 1.1rem; margin-bottom: 16px;">新員工培訓進度</div>
+                            
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">工地安全基礎課程</div>
+                                    <div class="training-progress">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">品質管理規範</div>
+                                    <div class="training-progress">72%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 72%"></div>
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">機電系統操作</div>
+                                    <div class="training-progress">91%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 91%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-success">安排面試</button>
+                            <button class="btn btn-secondary" style="margin-left: 8px;">培訓報告</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VR訓練模組 -->
+                <div class="vr-training">
+                    <div class="vr-title">虛擬實境工地訓練系統</div>
+                    <div class="vr-subtitle">沉浸式模擬訓練，提升新員工技能與安全意識</div>
+                    <div class="vr-modules">
+                        <div class="vr-module">
+                            <div class="vr-module-title">高空作業安全</div>
+                            <div class="vr-module-desc">安全帶使用、防墜措施</div>
+                        </div>
+                        <div class="vr-module">
+                            <div class="vr-module-title">重機操作訓練</div>
+                            <div class="vr-module-desc">起重機、挖掘機模擬</div>
+                        </div>
+                        <div class="vr-module">
+                            <div class="vr-module-title">應急處理演練</div>
+                            <div class="vr-module-desc">火災、事故應對</div>
+                        </div>
+                        <div class="vr-module">
+                            <div class="vr-module-title">品質檢測實務</div>
+                            <div class="vr-module-desc">材料檢測、工藝標準</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模組切換功能
+        function switchModule(moduleName) {
+            // 移除所有導航項目的active狀態
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 添加當前點擊項目的active狀態
+            event.currentTarget.classList.add('active');
+            
+            // 切換內容區域
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(moduleName) {
+                case 'overview':
+                    // 已經是預設顯示的內容
+                    location.reload();
+                    break;
+                case 'ai-matching':
+                    showAIMatching();
+                    break;
+                case 'job-demand':
+                    showJobDemandPrediction();
+                    break;
+                case 'training':
+                    showOnlineTraining();
+                    break;
+                case 'vr-training':
+                    showVRTraining();
+                    break;
+                case 'talent-management':
+                    showTalentManagement();
+                    break;
+            }
+        }
+
+        function showAIMatching() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">AI智慧篩選與配對系統</div>
+                            <div class="section-subtitle">基於大數據分析的智慧人才配對技術</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">AI分析維度</h4>
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                                <div style="margin-bottom: 16px;">
+                                    <strong>技能配對度分析：</strong>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 證照與資格認證比對 (權重: 30%)
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 工作經驗與專案類型 (權重: 35%)
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 技能評測結果 (權重: 25%)
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 工作穩定性預測 (權重: 10%)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">配對演算法效能</h4>
+                            <div class="chart-container">
+                                <div class="chart-placeholder">
+                                    AI配對準確率: 94.2%<br>
+                                    (基於過去1000筆招聘數據)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="candidate-grid">
+                        <div class="candidate-card">
+                            <div class="candidate-header">
+                                <div class="candidate-name">陳志強 (機電工程師)</div>
+                                <div class="match-score">98%</div>
+                            </div>
+                            <div class="candidate-skills">
+                                <span class="skill-tag">工業配電</span>
+                                <span class="skill-tag">PLC系統</span>
+                                <span class="skill-tag">甲級技師</span>
+                                <span class="skill-tag">專案管理</span>
+                            </div>
+                            <div class="candidate-exp">15年經驗 | 7個大型廠房專案 | 穩定性評分: A+</div>
+                        </div>
+                        
+                        <div class="candidate-card">
+                            <div class="candidate-header">
+                                <div class="candidate-name">林雅芬 (品質檢測)</div>
+                                <div class="match-score">95%</div>
+                            </div>
+                            <div class="candidate-skills">
+                                <span class="skill-tag">材料檢測</span>
+                                <span class="skill-tag">品管證照</span>
+                                <span class="skill-tag">統計分析</span>
+                            </div>
+                            <div class="candidate-exp">10年檢測經驗 | ISO品管專精 | 穩定性評分: A</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <h4 style="margin-bottom: 16px; color: #4a5568;">AI推薦理由與建議</h4>
+                        <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong>陳志強推薦理由：</strong> 技能完全符合需求，專案經驗豐富，工作穩定性極佳，預測留任率98%
+                        </div>
+                        <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                            <strong>面試建議：</strong> 重點確認最新技術更新狀況，薪資期望可能較高，建議提供技術挑戰性工作
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showJobDemandPrediction() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">崗位需求預測與資源優化</div>
+                            <div class="section-subtitle">基於專案規模與工期的智慧人力需求分析</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">未來3個月人力需求預測</h4>
+                            <table class="job-requirements-table">
+                                <thead>
+                                    <tr>
+                                        <th>月份</th>
+                                        <th>預測需求</th>
+                                        <th>主要工種</th>
+                                        <th>建議行動</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>2025-01</strong></td>
+                                        <td>+15人</td>
+                                        <td>機電、外構</td>
+                                        <td><span class="urgency-high">立即招聘</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2025-02</strong></td>
+                                        <td>+8人</td>
+                                        <td>品檢、安全</td>
+                                        <td><span class="urgency-medium">提前準備</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2025-03</strong></td>
+                                        <td>-5人</td>
+                                        <td>收尾階段</td>
+                                        <td><span class="urgency-low">人力調配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">預測模型準確度</h5>
+                                <div class="training-item">
+                                    <div class="training-header">
+                                        <div class="training-name">歷史預測準確率</div>
+                                        <div class="training-progress">91.5%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 91.5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">專案進度關聯分析</h4>
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                                <div style="margin-bottom: 16px;">
+                                    <strong>深坑廠庫專案影響因子：</strong>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 工程進度98.9%，收尾階段需精技人員
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 外構工程延後，需增加景觀技師
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 機電系統複雜，需資深工程師監督
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 品質要求高，需專業檢測人員
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">資源優化建議</h5>
+                                <div style="background: #c6f6d5; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                                    建議：優先補強機電與外構人力
+                                </div>
+                                <div style="background: #fef5e7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                                    注意：避免過度招聘一般工種
+                                </div>
+                                <div style="background: #e6f3ff; padding: 12px; border-radius: 6px;">
+                                    資訊：建立彈性調配機制
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showOnlineTraining() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">線上培訓學習平台</div>
+                            <div class="section-subtitle">新員工入職培訓與技能提升課程</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">必修課程進度</h4>
+                            
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">工地安全基礎訓練</div>
+                                    <div class="training-progress">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    6/8 單元完成 | 預計完成: 2025-01-05
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">品質管理規範</div>
+                                    <div class="training-progress">72%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 72%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    13/18 章節完成 | 預計完成: 2025-01-08
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">環保法規認知</div>
+                                    <div class="training-progress">91%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 91%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    10/11 單元完成 | 即將完成
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">施工技術標準</div>
+                                    <div class="training-progress">45%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    9/20 章節完成 | 預計完成: 2025-01-15
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">專業技能課程</h4>
+                            
+                            <div class="candidate-grid">
+                                <div class="candidate-card">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">機電系統操作</div>
+                                        <div class="match-score" style="background: #38a169;">完成</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">PLC基礎</span>
+                                        <span class="skill-tag">電氣安全</span>
+                                        <span class="skill-tag">故障排除</span>
+                                    </div>
+                                    <div class="candidate-exp">8小時課程 | 證書已發放</div>
+                                </div>
+                                
+                                <div class="candidate-card">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">鋼筋工藝標準</div>
+                                        <div class="match-score" style="background: #ed8936;">進行中</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">綁紮技術</span>
+                                        <span class="skill-tag">圖紙識讀</span>
+                                        <span class="skill-tag">品質檢查</span>
+                                    </div>
+                                    <div class="candidate-exp">12小時課程 | 進度 67%</div>
+                                </div>
+                                
+                                <div class="candidate-card">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">外構景觀設計</div>
+                                        <div class="match-score" style="background: #718096;">待開始</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">植物配置</span>
+                                        <span class="skill-tag">灌溉設計</span>
+                                        <span class="skill-tag">施工管理</span>
+                                    </div>
+                                    <div class="candidate-exp">15小時課程 | 預計1月開課</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">學習成效統計</h5>
+                                <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                                    <div style="margin-bottom: 8px;">
+                                        • 平均課程完成率: 78.5%
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        • 測驗平均分數: 87.2分
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        • 技能認證通過率: 92%
+                                    </div>
+                                    <div>
+                                        • 學員滿意度: 4.6/5.0
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showVRTraining() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="vr-training" style="margin-bottom: 24px;">
+                    <div class="vr-title">虛擬實境工地訓練中心</div>
+                    <div class="vr-subtitle">沉浸式3D模擬環境，安全高效的實務訓練</div>
+                </div>
+                
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">VR訓練模組管理</div>
+                            <div class="section-subtitle">虛擬實境技術結合實際工地場景</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">可用VR訓練模組</h4>
+                            
+                            <div class="candidate-grid">
+                                <div class="candidate-card" style="border-left-color: #e53e3e;">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">高空作業安全</div>
+                                        <div class="match-score" style="background: #e53e3e;">高風險</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">安全帶使用</span>
+                                        <span class="skill-tag">防墜措施</span>
+                                        <span class="skill-tag">緊急處理</span>
+                                    </div>
+                                    <div class="candidate-exp">模擬高度: 2-50米 | 訓練時長: 45分鐘</div>
+                                </div>
+                                
+                                <div class="candidate-card" style="border-left-color: #ed8936;">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">重機操作訓練</div>
+                                        <div class="match-score" style="background: #ed8936;">中風險</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">起重機</span>
+                                        <span class="skill-tag">挖掘機</span>
+                                        <span class="skill-tag">操作規範</span>
+                                    </div>
+                                    <div class="candidate-exp">多種機型模擬 | 訓練時長: 60分鐘</div>
+                                </div>
+                                
+                                <div class="candidate-card" style="border-left-color: #38a169;">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">品質檢測實務</div>
+                                        <div class="match-score" style="background: #38a169;">技術型</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">材料檢測</span>
+                                        <span class="skill-tag">工藝標準</span>
+                                        <span class="skill-tag">缺陷識別</span>
+                                    </div>
+                                    <div class="candidate-exp">真實案例模擬 | 訓練時長: 40分鐘</div>
+                                </div>
+                                
+                                <div class="candidate-card" style="border-left-color: #9f7aea;">
+                                    <div class="candidate-header">
+                                        <div class="candidate-name">應急處理演練</div>
+                                        <div class="match-score" style="background: #9f7aea;">應急型</div>
+                                    </div>
+                                    <div class="candidate-skills">
+                                        <span class="skill-tag">火災處理</span>
+                                        <span class="skill-tag">人員疏散</span>
+                                        <span class="skill-tag">事故應對</span>
+                                    </div>
+                                    <div class="candidate-exp">多場景模擬 | 訓練時長: 50分鐘</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">VR訓練成效分析</h4>
+                            
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                                <div style="margin-bottom: 16px;">
+                                    <strong>本月VR訓練統計：</strong>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 參與人數: 24人
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 平均訓練時長: 52分鐘
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 技能測評通過率: 94%
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 安全意識提升度: 87%
+                                </div>
+                            </div>
+                            
+                            <h5 style="margin-bottom: 12px; color: #4a5568;">訓練進度追蹤</h5>
+                            
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">李建華 - 高空作業</div>
+                                    <div class="training-progress">完成</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    評分: 95分 | 可實地作業
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">張美玲 - 品質檢測</div>
+                                    <div class="training-progress">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    進行中 | 預計明日完成
+                                </div>
+                            </div>
+
+                            <div class="training-item">
+                                <div class="training-header">
+                                    <div class="training-name">王志明 - 重機操作</div>
+                                    <div class="training-progress">60%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    需額外練習 | 安排複訓
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-primary">開始VR訓練</button>
+                                <button class="btn btn-secondary" style="margin-left: 8px;">訓練報告</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTalentManagement() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">全生命週期人才管理</div>
+                            <div class="section-subtitle">HRMS整合系統 - 從招聘到發展的完整管理</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">員工發展追蹤</h4>
+                            <table class="job-requirements-table">
+                                <thead>
+                                    <tr>
+                                        <th>員工姓名</th>
+                                        <th>入職時間</th>
+                                        <th>當前級別</th>
+                                        <th>發展狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="job-title">李建華</td>
+                                        <td>2024-03-15</td>
+                                        <td>資深工程師</td>
+                                        <td><span class="urgency-low">穩定發展</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="job-title">張美玲</td>
+                                        <td>2024-06-01</td>
+                                        <td>技術員</td>
+                                        <td><span class="urgency-medium">待晉升</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="job-title">王志明</td>
+                                        <td>2024-09-10</td>
+                                        <td>初級技工</td>
+                                        <td><span class="urgency-high">需輔導</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="job-title">陳志強</td>
+                                        <td>2023-12-01</td>
+                                        <td>主管級</td>
+                                        <td><span class="urgency-low">表現優異</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">績效評估指標</h5>
+                                <div class="training-item">
+                                    <div class="training-header">
+                                        <div class="training-name">技術能力提升</div>
+                                        <div class="training-progress">82%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 82%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="training-item">
+                                    <div class="training-header">
+                                        <div class="training-name">團隊協作能力</div>
+                                        <div class="training-progress">89%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 89%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="training-item">
+                                    <div class="training-header">
+                                        <div class="training-name">工作責任心</div>
+                                        <div class="training-progress">94%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 94%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">職業發展規劃</h4>
+                            
+                            <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>晉升候選人：</strong><br>
+                                • 張美玲：技術考核優異，建議升任工程師<br>
+                                • 李建華：管理潛力佳，可培養為主管<br>
+                                • 陳志強：資深專家，適合技術導師角色
+                            </div>
+                            
+                            <div style="background: #fef5e7; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>需關注員工：</strong><br>
+                                • 王志明：適應期較長，安排專人輔導<br>
+                                • 建議加強基礎技能培訓<br>
+                                • 提供更多實務操作機會
+                            </div>
+                            
+                            <div style="background: #e6f3ff; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>人才發展趨勢：</strong><br>
+                                • 員工留任率: 94% (業界領先)<br>
+                                • 內部晉升率: 78%<br>
+                                • 技能認證完成率: 91%<br>
+                                • 員工滿意度: 4.7/5.0
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">下季度發展計劃</h5>
+                                <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                                    <div style="margin-bottom: 8px;">
+                                        • 啟動管理培訓班 (3人)
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        • 技術認證考試 (8人)
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        • 師徒制度配對 (5組)
+                                    </div>
+                                    <div>
+                                        • 跨部門輪調機會 (2人)
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; text-align: center;">
+                                <button class="btn btn-primary">生成發展報告</button>
+                                <button class="btn btn-secondary" style="margin-left: 8px;">設定發展目標</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 定期更新時間
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-TW') + ' ' + 
+                             now.toLocaleTimeString('zh-TW', { 
+                                 hour: '2-digit', 
+                                 minute: '2-digit' 
+                             });
+            document.getElementById('lastUpdate').textContent = timeString;
+        }
+
+        // 初始化
+        updateTime();
+        setInterval(updateTime, 60000); // 每分鐘更新一次
+
+        // 模擬數據更新
+        function simulateDataUpdate() {
+            // 隨機更新一些數值來模擬即時性
+            const activeJobs = document.getElementById('activeJobs');
+            if (activeJobs) {
+                // 模擬職位數量的小幅變動
+                const baseJobs = 12;
+                const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+                activeJobs.textContent = Math.max(1, baseJobs + variation);
+            }
+        }
+
+        // 每30秒模擬一次數據更新
+        setInterval(simulateDataUpdate, 30000);
+    </script>
+</body>
+</html>

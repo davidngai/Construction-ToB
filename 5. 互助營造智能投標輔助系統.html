@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互助營造 - 智能投標輔助系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        /* 側邊導航 */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #2c5aa0 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: #f0f4f8;
+            border-left-color: #2b6cb0;
+        }
+
+        .nav-item.active {
+            background: #f0f4f8;
+            border-left-color: #2b6cb0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+            line-height: 1.5;
+            margin-top: auto;
+        }
+
+        /* 主要內容區域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #2c5aa0 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        /* 統計卡片 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2b6cb0, #2c5aa0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-change.positive {
+            color: #38a169;
+        }
+
+        .card-change.negative {
+            color: #e53e3e;
+        }
+
+        .card-change.neutral {
+            color: #718096;
+        }
+
+        /* 主要功能區塊 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .feature-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2b6cb0, #2c5aa0);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        /* 表格樣式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        /* 表單樣式 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        /* 狀態標籤 */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-won {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-lost {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-pending {
+            background: #faf5ff;
+            color: #553c9a;
+        }
+
+        .status-preparing {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        /* 進度條 */
+        .progress-item {
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-weight: 500;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .progress-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2b6cb0, #2c5aa0);
+            transition: width 0.3s ease;
+        }
+
+        /* 案例卡片 */
+        .case-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .case-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .case-card:hover {
+            background: #edf2f7;
+            transform: translateY(-1px);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .case-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .case-details {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 1200px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .nav-item {
+                min-width: 120px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header {
+                padding: 20px 16px;
+            }
+
+            .status-bar {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊導航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>智能投標輔助系統</h3>
+                <p>AI驅動的投標決策支援平台</p>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchModule('dashboard')">
+                    <div class="nav-icon">■</div>
+                    <span>投標總覽</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('analysis')">
+                    <div class="nav-icon">▲</div>
+                    <span>案例分析</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('generator')">
+                    <div class="nav-icon">▼</div>
+                    <span>文件生成</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('database')">
+                    <div class="nav-icon">●</div>
+                    <span>案例庫</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('templates')">
+                    <div class="nav-icon">◆</div>
+                    <span>模板管理</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('evaluation')">
+                    <div class="nav-icon">♦</div>
+                    <span>中標評估</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('settings')">
+                    <div class="nav-icon">◎</div>
+                    <span>系統設定</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                © 2025 互助營造股份有限公司<br>
+                Developed by NUS ASAP Lab  版本: 1.1.0
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <div class="header">
+                <h1>互助營造智能投標輔助系統</h1>
+                <p>基於AI分析的投標決策支援 · 歷史案例智能學習 · 自動化文件生成</p>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="online-dot"></div>
+                    <span>智能分析系統運行正常</span>
+                </div>
+                <div>
+                    案例庫更新：<span id="lastUpdate">2024-12-31 16:45</span> | 活躍投標案：<span>7</span> 件
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- 統計數據卡片 -->
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">投標成功率</div>
+                                <div class="card-value">68.3%</div>
+                                <div class="card-change positive">較去年 +12.5%</div>
+                            </div>
+                            <div class="card-icon">▲</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">累計投標案</div>
+                                <div class="card-value">247</div>
+                                <div class="card-change neutral">本年度總計</div>
+                            </div>
+                            <div class="card-icon">■</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">AI分析準確度</div>
+                                <div class="card-value">91.7%</div>
+                                <div class="card-change positive">持續優化中</div>
+                            </div>
+                            <div class="card-icon">●</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">進行中投標</div>
+                                <div class="card-value">7</div>
+                                <div class="card-change neutral">需要關注</div>
+                            </div>
+                            <div class="card-icon">◆</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要功能區塊 -->
+                <div class="feature-grid">
+                    <!-- 投標案件管理 -->
+                    <div class="feature-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">進行中的投標案件</div>
+                                <div class="section-subtitle">需要重點關注的投標項目與進度</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="createNewBid()">新增投標案</button>
+                        </div>
+
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>投標案名稱</th>
+                                    <th>業主</th>
+                                    <th>預算規模</th>
+                                    <th>截止日期</th>
+                                    <th>中標機率</th>
+                                    <th>狀態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>高雄市立圖書館新建工程</td>
+                                    <td>高雄市政府</td>
+                                    <td>8.5億</td>
+                                    <td>2025-01-15</td>
+                                    <td>
+                                        <div class="progress-item">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 78%"></div>
+                                            </div>
+                                            <div style="font-size: 11px; color: #38a169; margin-top: 2px;">78% (高)</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-preparing">準備中</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">檢視</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>桃園國際機場第三航廈擴建</td>
+                                    <td>桃園國際機場</td>
+                                    <td>12.3億</td>
+                                    <td>2025-01-20</td>
+                                    <td>
+                                        <div class="progress-item">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 45%"></div>
+                                            </div>
+                                            <div style="font-size: 11px; color: #ed8936; margin-top: 2px;">45% (中)</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-preparing">準備中</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">檢視</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>新竹科學園區辦公大樓</td>
+                                    <td>新竹科學園區</td>
+                                    <td>4.2億</td>
+                                    <td>2025-01-25</td>
+                                    <td>
+                                        <div class="progress-item">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 62%"></div>
+                                            </div>
+                                            <div style="font-size: 11px; color: #38a169; margin-top: 2px;">62% (中高)</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-pending">評估中</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">檢視</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>台中市社會住宅建設案</td>
+                                    <td>台中市政府</td>
+                                    <td>6.8億</td>
+                                    <td>2025-02-01</td>
+                                    <td>
+                                        <div class="progress-item">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 85%"></div>
+                                            </div>
+                                            <div style="font-size: 11px; color: #38a169; margin-top: 2px;">85% (極高)</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-preparing">準備中</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">檢視</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary">查看全部投標案</button>
+                            <button class="btn btn-secondary" style="margin-left: 12px;">AI智能推薦</button>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作面板 -->
+                    <div class="feature-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">快速操作</div>
+                                <div class="section-subtitle">常用功能快速入口</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; gap: 12px;">
+                            <button class="btn btn-primary" onclick="quickAnalysis()" style="justify-self: stretch; padding: 16px;">
+                                AI智能分析新案件
+                            </button>
+                            <button class="btn btn-success" onclick="generateDocument()" style="justify-self: stretch; padding: 16px;">
+                                自動生成投標文件
+                            </button>
+                            <button class="btn btn-secondary" onclick="searchCases()" style="justify-self: stretch; padding: 16px;">
+                                搜尋歷史案例
+                            </button>
+                            <button class="btn btn-warning" onclick="evaluateWinRate()" style="justify-self: stretch; padding: 16px;">
+                                評估中標機率
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 24px;">
+                            <div class="section-title" style="font-size: 1.1rem; margin-bottom: 16px;">成功案例分析</div>
+                            
+                            <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">關鍵成功因素</div>
+                                <div style="font-size: 13px; line-height: 1.4;">
+                                    • 技術方案創新性 (權重: 35%)<br>
+                                    • 過往經驗相關性 (權重: 28%)<br>
+                                    • 價格競爭力 (權重: 22%)<br>
+                                    • 履約能力證明 (權重: 15%)
+                                </div>
+                            </div>
+
+                            <div style="background: #fef5e7; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">風險預警</div>
+                                <div style="font-size: 13px; line-height: 1.4;">
+                                    • 同業競爭激烈度增加 15%<br>
+                                    • 材料成本波動風險<br>
+                                    • 法規變更影響評估
+                                </div>
+                            </div>
+
+                            <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">AI建議</div>
+                                <div style="font-size: 13px; line-height: 1.4;">
+                                    基於歷史數據分析，建議重點投入技術創新展示，並加強與業主的前期溝通。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近案例分析 -->
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">最近案例分析結果</div>
+                            <div class="section-subtitle">AI智能分析的投標案例與成功要素</div>
+                        </div>
+                        <button class="btn btn-secondary">查看全部分析</button>
+                    </div>
+
+                    <div class="case-cards">
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">台北市立美術館擴建案</div>
+                                <span class="status-badge status-won">中標</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>成功要素:</strong> 創新設計方案、豐富美術館建設經驗、合理價格策略<br>
+                                <strong>預算規模:</strong> 15.2億元<br>
+                                <strong>競爭對手:</strong> 5家 | <strong>中標機率預測:</strong> 82% (實際中標)<br>
+                                <strong>關鍵學習:</strong> 強調文化保護與現代化結合的設計理念獲得高分
+                            </div>
+                        </div>
+
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">高雄捷運延伸線工程</div>
+                                <span class="status-badge status-lost">未中標</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>失敗原因:</strong> 技術方案保守、價格偏高、施工期程規劃不夠緊湊<br>
+                                <strong>預算規模:</strong> 28.7億元<br>
+                                <strong>競爭對手:</strong> 8家 | <strong>中標機率預測:</strong> 35% (預測準確)<br>
+                                <strong>改善建議:</strong> 加強軌道工程技術創新，優化成本控制策略
+                            </div>
+                        </div>
+
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">桃園智慧城市基礎建設</div>
+                                <span class="status-badge status-won">中標</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>成功要素:</strong> 智慧科技整合能力、地方政府合作經驗、階段性實施方案<br>
+                                <strong>預算規模:</strong> 9.8億元<br>
+                                <strong>競爭對手:</strong> 6家 | <strong>中標機率預測:</strong> 74% (實際中標)<br>
+                                <strong>關鍵學習:</strong> 展示數位化施工管理系統成為加分項目
+                            </div>
+                        </div>
+
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">新竹生醫園區實驗大樓</div>
+                                <span class="status-badge status-pending">評估中</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>預測分析:</strong> 專業實驗室建設經驗、無塵室施工技術、生醫法規熟悉度<br>
+                                <strong>預算規模:</strong> 7.3億元<br>
+                                <strong>競爭對手:</strong> 4家 | <strong>中標機率預測:</strong> 67% (分析中)<br>
+                                <strong>建議策略:</strong> 重點展示GMP標準施工能力與品質管控系統
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模組切換功能
+        function switchModule(moduleName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            event.target.closest('.nav-item').classList.add('active');
+            
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(moduleName) {
+                case 'dashboard':
+                    // 保持當前內容
+                    break;
+                case 'analysis':
+                    showCaseAnalysis();
+                    break;
+                case 'generator':
+                    showDocumentGenerator();
+                    break;
+                case 'database':
+                    showCaseDatabase();
+                    break;
+                case 'templates':
+                    showTemplates();
+                    break;
+                case 'evaluation':
+                    showEvaluation();
+                    break;
+                case 'settings':
+                    showSettings();
+                    break;
+            }
+        }
+
+        // 快速操作功能
+        function createNewBid() {
+            alert('正在開啟新投標案建立表單...');
+        }
+
+        function quickAnalysis() {
+            showCaseAnalysis();
+        }
+
+        function generateDocument() {
+            showDocumentGenerator();
+        }
+
+        function searchCases() {
+            showCaseDatabase();
+        }
+
+        function evaluateWinRate() {
+            showEvaluation();
+        }
+
+        // 顯示案例分析模組
+        function showCaseAnalysis() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">AI智能案例分析</div>
+                            <div class="section-subtitle">基於歷史數據的深度學習分析與成功要素識別</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">投標案類型</label>
+                            <select class="form-control">
+                                <option>公共建築工程</option>
+                                <option>交通建設工程</option>
+                                <option>住宅建設工程</option>
+                                <option>工業建築工程</option>
+                                <option>基礎設施工程</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">預算規模範圍</label>
+                            <select class="form-control">
+                                <option>1億以下</option>
+                                <option>1-5億</option>
+                                <option>5-10億</option>
+                                <option>10億以上</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">業主類型</label>
+                            <select class="form-control">
+                                <option>政府機關</option>
+                                <option>國營事業</option>
+                                <option>上市公司</option>
+                                <option>民間企業</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">地區</label>
+                            <select class="form-control">
+                                <option>全台灣</option>
+                                <option>北部地區</option>
+                                <option>中部地區</option>
+                                <option>南部地區</option>
+                                <option>東部地區</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <button class="btn btn-primary" onclick="runAIAnalysis()">
+                            開始AI智能分析
+                        </button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">
+                            載入分析範本
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-section">
+                        <div class="section-title">成功要素權重分析</div>
+                        <div style="margin-top: 20px;">
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">技術方案創新性</div>
+                                    <div class="progress-value">35%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">過往經驗相關性</div>
+                                    <div class="progress-value">28%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 28%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">價格競爭力</div>
+                                    <div class="progress-value">22%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 22%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">履約能力證明</div>
+                                    <div class="progress-value">15%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-section">
+                        <div class="section-title">競爭對手分析</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>競爭對手</th>
+                                    <th>勝率</th>
+                                    <th>強項</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>大陸工程</td>
+                                    <td>23%</td>
+                                    <td>大型工程經驗</td>
+                                </tr>
+                                <tr>
+                                    <td>潤泰建設</td>
+                                    <td>18%</td>
+                                    <td>成本控制</td>
+                                </tr>
+                                <tr>
+                                    <td>遠雄建設</td>
+                                    <td>16%</td>
+                                    <td>品質管理</td>
+                                </tr>
+                                <tr>
+                                    <td>榮工工程</td>
+                                    <td>15%</td>
+                                    <td>政府關係</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示文件生成模組
+        function showDocumentGenerator() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">智能投標文件生成器</div>
+                            <div class="section-subtitle">基於AI分析和模板的自動化文件產生系統</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">投標案名稱</label>
+                            <input type="text" class="form-control" placeholder="輸入投標案完整名稱">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">業主單位</label>
+                            <input type="text" class="form-control" placeholder="輸入業主單位名稱">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">工程類型</label>
+                            <select class="form-control">
+                                <option>建築工程</option>
+                                <option>土木工程</option>
+                                <option>機電工程</option>
+                                <option>裝修工程</option>
+                                <option>景觀工程</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">預算金額</label>
+                            <input type="number" class="form-control" placeholder="輸入預算金額 (萬元)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">工期</label>
+                            <input type="number" class="form-control" placeholder="預計工期 (天)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">投標文件類型</label>
+                            <select class="form-control">
+                                <option>完整投標書</option>
+                                <option>技術提案書</option>
+                                <option>資格文件</option>
+                                <option>財務提案書</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 24px 0;">
+                        <div class="section-title" style="font-size: 1.1rem; margin-bottom: 16px;">文件生成選項</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                公司簡介與資格證明
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                技術方案與施工計畫
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                過往經驗與實績
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                人力組織與管理
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                品質管制計畫
+                            </label>
+                            <label style="display: flex; align-items; center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                安全衛生計畫
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="btn btn-primary" onclick="generateBidDocument()">
+                            AI智能生成投標文件
+                        </button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">
+                            預覽文件結構
+                        </button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">
+                            載入歷史範本
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <div class="section-title">最近生成的文件</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>文件名稱</th>
+                                <th>投標案</th>
+                                <th>生成時間</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>高雄市立圖書館投標書_完整版</td>
+                                <td>高雄市立圖書館新建工程</td>
+                                <td>2024-12-31 14:20</td>
+                                <td><span class="status-badge status-won">已完成</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">下載</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">編輯</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>桃園機場擴建技術提案書</td>
+                                <td>桃園國際機場第三航廈擴建</td>
+                                <td>2024-12-31 10:15</td>
+                                <td><span class="status-badge status-preparing">生成中</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" disabled>處理中</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>新竹科園區辦公大樓投標書</td>
+                                <td>新竹科學園區辦公大樓</td>
+                                <td>2024-12-30 16:45</td>
+                                <td><span class="status-badge status-won">已完成</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">下載</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">編輯</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 顯示案例庫模組
+        function showCaseDatabase() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">歷史投標案例資料庫</div>
+                            <div class="section-subtitle">累積247個投標案例的深度分析與學習資料</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addNewCase()">新增案例</button>
+                    </div>
+                    
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">搜尋關鍵字</label>
+                            <input type="text" class="form-control" placeholder="輸入投標案名稱或關鍵字">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">工程類型篩選</label>
+                            <select class="form-control">
+                                <option>全部類型</option>
+                                <option>公共建築</option>
+                                <option>交通建設</option>
+                                <option>住宅建設</option>
+                                <option>工業建築</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">結果篩選</label>
+                            <select class="form-control">
+                                <option>全部結果</option>
+                                <option>僅顯示中標案例</option>
+                                <option>僅顯示未中標案例</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">時間範圍</label>
+                            <select class="form-control">
+                                <option>全部時間</option>
+                                <option>最近一年</option>
+                                <option>最近兩年</option>
+                                <option>2020年以後</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <button class="btn btn-primary">搜尋案例</button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">清除篩選</button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">匯出報告</button>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <div class="section-title">案例搜尋結果</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>投標案名稱</th>
+                                <th>業主</th>
+                                <th>預算規模</th>
+                                <th>投標日期</th>
+                                <th>結果</th>
+                                <th>中標率預測</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>台北市立美術館擴建案</td>
+                                <td>台北市政府</td>
+                                <td>15.2億</td>
+                                <td>2024-10-15</td>
+                                <td><span class="status-badge status-won">中標</span></td>
+                                <td>82%</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">詳細分析</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>高雄捷運延伸線工程</td>
+                                <td>高雄市政府</td>
+                                <td>28.7億</td>
+                                <td>2024-09-20</td>
+                                <td><span class="status-badge status-lost">未中標</span></td>
+                                <td>35%</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">失敗分析</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>桃園智慧城市基礎建設</td>
+                                <td>桃園市政府</td>
+                                <td>9.8億</td>
+                                <td>2024-08-10</td>
+                                <td><span class="status-badge status-won">中標</span></td>
+                                <td>74%</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">詳細分析</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>台中港區開發案</td>
+                                <td>台中港務局</td>
+                                <td>22.3億</td>
+                                <td>2024-07-05</td>
+                                <td><span class="status-badge status-lost">未中標</span></td>
+                                <td>45%</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">失敗分析</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>新竹生醫園區建設</td>
+                                <td>科技部</td>
+                                <td>12.1億</td>
+                                <td>2024-06-18</td>
+                                <td><span class="status-badge status-won">中標</span></td>
+                                <td>78%</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">詳細分析</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 顯示模板管理模組
+        function showTemplates() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">投標文件模板管理</div>
+                            <div class="section-subtitle">管理和自定義各類投標文件模板</div>
+                        </div>
+                        <button class="btn btn-primary">新增模板</button>
+                    </div>
+                    
+                    <div class="case-cards">
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">公共建築工程投標書模板</div>
+                                <span class="status-badge status-won">已啟用</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>適用範圍:</strong> 政府機關公共建築工程投標<br>
+                                <strong>包含章節:</strong> 公司資格、技術方案、施工計畫、品質管理<br>
+                                <strong>使用次數:</strong> 23次 | <strong>成功率:</strong> 74%<br>
+                                <strong>最後更新:</strong> 2024-12-20
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">編輯</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; margin-left: 8px;">複製</button>
+                            </div>
+                        </div>
+                        
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">交通建設工程投標書模板</div>
+                                <span class="status-badge status-won">已啟用</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>適用範圍:</strong> 道路、橋樑、捷運等交通建設<br>
+                                <strong>包含章節:</strong> 交通維持計畫、環境保護、安全管制<br>
+                                <strong>使用次數:</strong> 18次 | <strong>成功率:</strong> 61%<br>
+                                <strong>最後更新:</strong> 2024-12-15
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">編輯</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; margin-left: 8px;">複製</button>
+                            </div>
+                        </div>
+                        
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">住宅建設投標書模板</div>
+                                <span class="status-badge status-preparing">草稿</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>適用範圍:</strong> 社會住宅、民間住宅建設案<br>
+                                <strong>包含章節:</strong> 社區規劃、綠建築設計、住戶服務<br>
+                                <strong>使用次數:</strong> 5次 | <strong>成功率:</strong> 80%<br>
+                                <strong>最後更新:</strong> 2024-12-28
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">完成編輯</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; margin-left: 8px;">預覽</button>
+                            </div>
+                        </div>
+                        
+                        <div class="case-card">
+                            <div class="case-header">
+                                <div class="case-title">工業建築投標書模板</div>
+                                <span class="status-badge status-won">已啟用</span>
+                            </div>
+                            <div class="case-details">
+                                <strong>適用範圍:</strong> 廠房、倉庫、生產設施建設<br>
+                                <strong>包含章節:</strong> 工業安全、設備整合、產線規劃<br>
+                                <strong>使用次數:</strong> 12次 | <strong>成功率:</strong> 67%<br>
+                                <strong>最後更新:</strong> 2024-11-30
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">編輯</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; margin-left: 8px;">複製</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示中標評估模組
+        function showEvaluation() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">中標機率AI評估</div>
+                            <div class="section-subtitle">基於多維度數據分析的智能中標機率預測</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">投標案規模 (億元)</label>
+                            <input type="number" class="form-control" placeholder="預算金額">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">競爭對手數量</label>
+                            <input type="number" class="form-control" placeholder="預估競爭對手家數">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">過往合作經驗</label>
+                            <select class="form-control">
+                                <option>無合作經驗</option>
+                                <option>曾經合作</option>
+                                <option>長期合作夥伴</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">相關工程經驗</label>
+                            <select class="form-control">
+                                <option>完全符合</option>
+                                <option>部分符合</option>
+                                <option>相關經驗</option>
+                                <option>無相關經驗</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">技術創新程度</label>
+                            <select class="form-control">
+                                <option>業界領先</option>
+                                <option>先進技術</option>
+                                <option>成熟技術</option>
+                                <option>傳統技術</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">價格競爭力</label>
+                            <select class="form-control">
+                                <option>極具競爭力</option>
+                                <option>有競爭力</option>
+                                <option>市場水平</option>
+                                <option>偏高</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 24px 0;">
+                        <button class="btn btn-primary" onclick="calculateWinRate()">
+                            AI智能評估中標機率
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-section">
+                        <div class="section-title">評估結果</div>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <div style="font-size: 3rem; font-weight: 700; color: #38a169; margin-bottom: 8px;">
+                                75.3%
+                            </div>
+                            <div style="font-size: 1.2rem; color: #4a5568; margin-bottom: 16px;">
+                                預估中標機率 (高)
+                            </div>
+                            <div style="background: #c6f6d5; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>評估等級:</strong> 建議投標 - 具有較高中標可能性
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <div class="progress-label">整體競爭力</div>
+                                <div class="progress-value">75.3%</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75.3%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-section">
+                        <div class="section-title">詳細分析</div>
+                        <div style="margin-top: 16px;">
+                            <div style="background: #e6f3ff; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+                                <strong>技術優勢 (+25%)</strong><br>
+                                <small>先進的施工技術和創新方案為主要加分項目</small>
+                            </div>
+                            <div style="background: #c6f6d5; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+                                <strong>經驗相關性 (+20%)</strong><br>
+                                <small>豐富的相關工程經驗提升競爭力</small>
+                            </div>
+                            <div style="background: #fef5e7; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+                                <strong>價格競爭力 (+15%)</strong><br>
+                                <small>具競爭力的報價策略</small>
+                            </div>
+                            <div style="background: #fed7d7; padding: 12px; border-radius: 6px;">
+                                <strong>風險因素 (-10%)</strong><br>
+                                <small>競爭對手較多，需加強差異化策略</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示系統設定模組
+        function showSettings() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">系統設定</div>
+                            <div class="section-subtitle">投標輔助系統的個人化設定</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">AI分析設定</h4>
+                            <div class="form-group">
+                                <label class="form-label">分析深度</label>
+                                <select class="form-control">
+                                    <option>深度分析 (較慢)</option>
+                                    <option>標準分析 (推薦)</option>
+                                    <option>快速分析 (較簡略)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">案例比對範圍</label>
+                                <select class="form-control">
+                                    <option>全部歷史案例</option>
+                                    <option>最近5年案例</option>
+                                    <option>最近3年案例</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">風險評估敏感度</label>
+                                <select class="form-control">
+                                    <option>高敏感度</option>
+                                    <option>標準敏感度</option>
+                                    <option>低敏感度</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">文件生成設定</h4>
+                            <div class="form-group">
+                                <label class="form-label">預設公司資訊模板</label>
+                                <select class="form-control">
+                                    <option>標準公司簡介</option>
+                                    <option>詳細版本</option>
+                                    <option>精簡版本</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">自動儲存頻率</label>
+                                <select class="form-control">
+                                    <option>每5分鐘</option>
+                                    <option>每10分鐘</option>
+                                    <option>手動儲存</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">文件輸出格式</label>
+                                <select class="form-control">
+                                    <option>Word + PDF</option>
+                                    <option>僅PDF</option>
+                                    <option>僅Word</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 24px;">
+                        <button class="btn btn-primary">儲存設定</button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">恢復預設</button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">匯出設定</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 功能函數
+        function runAIAnalysis() {
+            alert('正在執行AI智能分析...\n分析範圍：歷史投標案例247件\n預計完成時間：2分鐘');
+        }
+
+        function generateBidDocument() {
+            alert('正在AI智能生成投標文件...\n預計完成時間：5分鐘\n將自動整合公司資料和技術方案');
+        }
+
+        function addNewCase() {
+            alert('正在開啟新案例建立表單...');
+        }
+
+        function calculateWinRate() {
+            alert('AI正在分析各項因素...\n計算中標機率中...\n預計完成時間：30秒');
+        }
+
+        // 時間更新
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-TW') + ' ' + 
+                             now.toLocaleTimeString('zh-TW', { 
+                                 hour: '2-digit', 
+                                 minute: '2-digit' 
+                             });
+            document.getElementById('lastUpdate').textContent = timeString;
+        }
+
+        // 初始化
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
+</body>
+</html>

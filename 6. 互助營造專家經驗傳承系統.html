@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互助營造 - 專家經驗傳承系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        /* 側邊導航 */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: #f0f4f8;
+            border-left-color: #805ad5;
+        }
+
+        .nav-item.active {
+            background: #f0f4f8;
+            border-left-color: #805ad5;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* 主要內容區域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        /* 統計卡片 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-change.positive {
+            color: #38a169;
+        }
+
+        .card-change.negative {
+            color: #e53e3e;
+        }
+
+        .card-change.neutral {
+            color: #718096;
+        }
+
+        /* 主要功能區塊 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .feature-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(128, 90, 213, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-info {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* 課程卡片 */
+        .course-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .course-thumbnail {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .course-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .course-meta {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .course-description {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .course-progress {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #805ad5, #6b46c1);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* 專家卡片 */
+        .expert-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .expert-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .expert-card:hover {
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+
+        .expert-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .expert-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .expert-title {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 12px;
+        }
+
+        .expert-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 16px;
+        }
+
+        .expert-stat {
+            text-align: center;
+        }
+
+        .expert-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #805ad5;
+        }
+
+        .expert-stat-label {
+            font-size: 11px;
+            color: #718096;
+        }
+
+        /* 表格樣式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        /* 狀態標籤 */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-completed {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        .status-pending {
+            background: #faf5ff;
+            color: #553c9a;
+        }
+
+        .status-recording {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        /* 表單樣式 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #805ad5;
+            box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.1);
+        }
+
+        /* 上傳區域 */
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8fafc;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #805ad5;
+            background: #faf5ff;
+        }
+
+        .upload-area.active {
+            border-color: #805ad5;
+            background: #faf5ff;
+        }
+
+        /* VR/AR 體驗卡片 */
+        .experience-card {
+            background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #bee3f8;
+        }
+
+        .experience-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .experience-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .experience-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        /* 版權信息樣式 */
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 1200px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .nav-item {
+                min-width: 120px;
+                flex-shrink: 0;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .course-cards,
+            .expert-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 20px 16px;
+            }
+
+            .status-bar {
+                padding: 12px 16px;
+            }
+            
+            .sidebar-footer {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊導航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>專家經驗傳承系統</h3>
+                <p>AI驅動的智能學習平台</p>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchModule('dashboard')">
+                    <div class="nav-icon">▣</div>
+                    <span>學習總覽</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('courses')">
+                    <div class="nav-icon">▤</div>
+                    <span>課程中心</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('experts')">
+                    <div class="nav-icon">▥</div>
+                    <span>專家導師</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('knowledge')">
+                    <div class="nav-icon">▦</div>
+                    <span>知識庫</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('vr-ar')">
+                    <div class="nav-icon">▧</div>
+                    <span>VR/AR體驗</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('upload')">
+                    <div class="nav-icon">▨</div>
+                    <span>經驗錄製</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('progress')">
+                    <div class="nav-icon">▩</div>
+                    <span>學習進度</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('ai-tutor')">
+                    <div class="nav-icon">▪</div>
+                    <span>AI智能導師</span>
+                </div>
+            </div>
+            
+            <!-- 版權信息 -->
+            <div class="sidebar-footer">
+                <div>© 2025 互助營造股份有限公司</div>
+                <div>Developed by NUS ASAP Lab  版本: 1.1.0</div>
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <div class="header">
+                <h1>互助營造專家經驗傳承系統</h1>
+                <p>AI智能學習平台 · 專家知識數位化 · VR/AR沉浸式體驗 · 個性化學習路徑</p>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="online-dot"></div>
+                    <span>AI導師系統運行正常</span>
+                </div>
+                <div>
+                    活躍學員：<span>156</span> 人 | 專家導師：<span>23</span> 位 | 知識內容：<span>1,247</span> 項
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- 統計數據卡片 -->
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">學習完成率</div>
+                                <div class="card-value">87.3%</div>
+                                <div class="card-change positive">較上月 +5.2%</div>
+                            </div>
+                            <div class="card-icon">▤</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">活躍學員數</div>
+                                <div class="card-value">156</div>
+                                <div class="card-change positive">本月新增 +24</div>
+                            </div>
+                            <div class="card-icon">▥</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">專家導師</div>
+                                <div class="card-value">23</div>
+                                <div class="card-change neutral">資深經驗分享</div>
+                            </div>
+                            <div class="card-icon">▦</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">VR體驗課程</div>
+                                <div class="card-value">15</div>
+                                <div class="card-change positive">新增 3 門課程</div>
+                            </div>
+                            <div class="card-icon">▧</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VR/AR 體驗區塊 -->
+                <div class="experience-card">
+                    <div class="experience-header">
+                        <div class="experience-icon">VR</div>
+                        <div>
+                            <div class="experience-title">沉浸式VR/AR學習體驗</div>
+                            <div style="font-size: 14px; color: #718096; margin-top: 4px;">
+                                透過虛擬實境技術，在安全的模擬環境中學習複雜的施工技術
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div style="background: rgba(255,255,255,0.8); padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">VR高空作業訓練</h4>
+                            <p style="font-size: 13px; color: #718096;">模擬真實高空施工環境，安全學習作業技巧</p>
+                            <button class="btn btn-info" style="margin-top: 12px; padding: 6px 12px; font-size: 12px;">開始體驗</button>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.8); padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">AR設備操作指導</h4>
+                            <p style="font-size: 13px; color: #718096;">擴增實境輔助學習各類施工設備操作</p>
+                            <button class="btn btn-info" style="margin-top: 12px; padding: 6px 12px; font-size: 12px;">開始體驗</button>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.8); padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">混合實境品質檢測</h4>
+                            <p style="font-size: 13px; color: #718096;">結合VR/AR技術學習工程品質檢測技能</p>
+                            <button class="btn btn-info" style="margin-top: 12px; padding: 6px 12px; font-size: 12px;">開始體驗</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要功能區塊 -->
+                <div class="feature-grid">
+                    <!-- 推薦課程 -->
+                    <div class="feature-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">個人化推薦課程</div>
+                                <div class="section-subtitle">AI智能分析為您推薦最適合的學習內容</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="browseAllCourses()">瀏覽全部課程</button>
+                        </div>
+
+                        <div class="course-cards">
+                            <div class="course-card">
+                                <div class="course-header">
+                                    <div class="course-thumbnail">▤</div>
+                                    <div class="course-info">
+                                        <h4>混凝土澆置技術精要</h4>
+                                        <div class="course-meta">資深工程師 陳志強 | 4.8★ | 45分鐘</div>
+                                    </div>
+                                </div>
+                                <div class="course-description">
+                                    從基礎理論到實務操作，深入講解混凝土澆置的關鍵技術要點，包含配比設計、澆置時機掌握、品質控制等核心知識。
+                                </div>
+                                <div class="course-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 68%"></div>
+                                    </div>
+                                    <div class="progress-text">學習進度：68% (3/5 章節完成)</div>
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%;">繼續學習</button>
+                            </div>
+
+                            <div class="course-card">
+                                <div class="course-header">
+                                    <div class="course-thumbnail">▥</div>
+                                    <div class="course-info">
+                                        <h4>鋼筋綁紮標準作業</h4>
+                                        <div class="course-meta">專案經理 林建宏 | 4.9★ | 38分鐘</div>
+                                    </div>
+                                </div>
+                                <div class="course-description">
+                                    結合20年現場經驗，詳細示範鋼筋綁紮的標準流程、常見問題處理，以及品質檢查要點。
+                                </div>
+                                <div class="course-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <div class="progress-text">尚未開始</div>
+                                </div>
+                                <button class="btn btn-secondary" style="width: 100%;">開始學習</button>
+                            </div>
+
+                            <div class="course-card">
+                                <div class="course-header">
+                                    <div class="course-thumbnail">▦</div>
+                                    <div class="course-info">
+                                        <h4>工地安全管理實務</h4>
+                                        <div class="course-meta">安全主管 王美華 | 4.7★ | 52分鐘</div>
+                                    </div>
+                                </div>
+                                <div class="course-description">
+                                    涵蓋工地安全規劃、風險識別、事故預防等重要內容，透過真實案例分析提升安全意識。
+                                </div>
+                                <div class="course-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                    <div class="progress-text">已完成 (獲得證書)</div>
+                                </div>
+                                <button class="btn btn-success" style="width: 100%;">查看證書</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI智能導師 -->
+                    <div class="feature-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">AI智能導師</div>
+                                <div class="section-subtitle">24小時專業問題解答</div>
+                            </div>
+                        </div>
+
+                        <div style="background: #faf5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #805ad5, #6b46c1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; margin-right: 12px;">AI</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #2d3748;">AI專業導師</div>
+                                    <div style="font-size: 12px; color: #718096;">基於23位專家經驗訓練</div>
+                                </div>
+                            </div>
+                            <div style="background: white; padding: 16px; border-radius: 6px; margin-bottom: 12px; border-left: 4px solid #805ad5;">
+                                <div style="font-size: 14px; line-height: 1.5;">
+                                    <strong>今日學習建議:</strong><br>
+                                    建議您優先完成「鋼筋綁紮標準作業」課程，這與您目前參與的深坑廠庫工程高度相關。學習重點應放在搭接長度計算和品質檢查標準。
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;" onclick="openAIChat()">開始AI對話</button>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 12px; color: #4a5568;">學習路徑推薦</div>
+                            <div style="background: #e6f3ff; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">初級施工員路徑</div>
+                                <div style="font-size: 12px; color: #718096;">基礎知識 → 安全規範 → 操作技能</div>
+                            </div>
+                            <div style="background: #c6f6d5; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">專業技術員路徑</div>
+                                <div style="font-size: 12px; color: #718096;">進階技術 → 品質管理 → 問題解決</div>
+                            </div>
+                            <div style="background: #fef5e7; padding: 12px; border-radius: 6px;">
+                                <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">管理職路徑</div>
+                                <div style="font-size: 12px; color: #718096;">團隊管理 → 專案規劃 → 決策分析</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 12px; color: #4a5568;">最近提問</div>
+                            <div style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;">
+                                <strong>Q:</strong> 混凝土澆置時遇到下雨應如何處理？<br>
+                                <strong>A:</strong> 應立即停止澆置，使用防水布覆蓋...
+                            </div>
+                            <button class="btn btn-secondary" style="width: 100%; padding: 8px;">查看完整對話記錄</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 專家導師區塊 -->
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">資深專家導師團隊</div>
+                            <div class="section-subtitle">豐富經驗的業界資深專家提供指導</div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="viewAllExperts()">查看全部專家</button>
+                    </div>
+
+                    <div class="expert-cards">
+                        <div class="expert-card">
+                            <div class="expert-avatar">陳</div>
+                            <div class="expert-name">陳志強</div>
+                            <div class="expert-title">資深工程師 · 25年經驗</div>
+                            <div class="expert-stats">
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">156</div>
+                                    <div class="expert-stat-label">學員數</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">4.9</div>
+                                    <div class="expert-stat-label">評分</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">23</div>
+                                    <div class="expert-stat-label">課程數</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;">查看課程</button>
+                        </div>
+
+                        <div class="expert-card">
+                            <div class="expert-avatar">林</div>
+                            <div class="expert-name">林建宏</div>
+                            <div class="expert-title">專案經理 · 18年經驗</div>
+                            <div class="expert-stats">
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">132</div>
+                                    <div class="expert-stat-label">學員數</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">4.8</div>
+                                    <div class="expert-stat-label">評分</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">18</div>
+                                    <div class="expert-stat-label">課程數</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;">查看課程</button>
+                        </div>
+
+                        <div class="expert-card">
+                            <div class="expert-avatar">王</div>
+                            <div class="expert-name">王美華</div>
+                            <div class="expert-title">安全主管 · 22年經驗</div>
+                            <div class="expert-stats">
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">189</div>
+                                    <div class="expert-stat-label">學員數</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">4.9</div>
+                                    <div class="expert-stat-label">評分</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">15</div>
+                                    <div class="expert-stat-label">課程數</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;">查看課程</button>
+                        </div>
+
+                        <div class="expert-card">
+                            <div class="expert-avatar">張</div>
+                            <div class="expert-name">張明德</div>
+                            <div class="expert-title">品管經理 · 30年經驗</div>
+                            <div class="expert-stats">
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">98</div>
+                                    <div class="expert-stat-label">學員數</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">4.7</div>
+                                    <div class="expert-stat-label">評分</div>
+                                </div>
+                                <div class="expert-stat">
+                                    <div class="expert-stat-value">12</div>
+                                    <div class="expert-stat-label">課程數</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;">查看課程</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模組切換功能
+        function switchModule(moduleName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            event.target.closest('.nav-item').classList.add('active');
+            
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(moduleName) {
+                case 'dashboard':
+                    // 保持當前內容
+                    break;
+                case 'courses':
+                    showCourses();
+                    break;
+                case 'experts':
+                    showExperts();
+                    break;
+                case 'knowledge':
+                    showKnowledgeBase();
+                    break;
+                case 'vr-ar':
+                    showVRAR();
+                    break;
+                case 'upload':
+                    showUpload();
+                    break;
+                case 'progress':
+                    showProgress();
+                    break;
+                case 'ai-tutor':
+                    showAITutor();
+                    break;
+            }
+        }
+
+        // 快速操作功能
+        function browseAllCourses() {
+            showCourses();
+        }
+
+        function viewAllExperts() {
+            showExperts();
+        }
+
+        function openAIChat() {
+            showAITutor();
+        }
+
+        // 顯示課程中心
+        function showCourses() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">課程中心</div>
+                            <div class="section-subtitle">豐富的專業課程內容，提升您的技能水平</div>
+                        </div>
+                        <button class="btn btn-primary">我要上傳課程</button>
+                    </div>
+                    
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">課程分類</label>
+                            <select class="form-control">
+                                <option>全部分類</option>
+                                <option>基礎施工技術</option>
+                                <option>安全管理</option>
+                                <option>品質控制</option>
+                                <option>專案管理</option>
+                                <option>設備操作</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">難度等級</label>
+                            <select class="form-control">
+                                <option>全部等級</option>
+                                <option>初級</option>
+                                <option>中級</option>
+                                <option>高級</option>
+                                <option>專家級</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">授課專家</label>
+                            <select class="form-control">
+                                <option>全部專家</option>
+                                <option>陳志強 (工程技術)</option>
+                                <option>林建宏 (專案管理)</option>
+                                <option>王美華 (安全管理)</option>
+                                <option>張明德 (品質控制)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">搜尋關鍵字</label>
+                            <input type="text" class="form-control" placeholder="輸入課程名稱或關鍵字">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="course-cards">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail">▤</div>
+                            <div class="course-info">
+                                <h4>混凝土澆置技術精要</h4>
+                                <div class="course-meta">陳志強 | 中級 | 45分鐘 | 4.8★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            詳細講解混凝土澆置的各個環節，包含材料準備、配比調整、澆置流程、養護方法等關鍵技術。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span style="background: #e6f3ff; color: #2c5aa0; padding: 2px 8px; border-radius: 12px; font-size: 11px;">混凝土</span>
+                            <span style="background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 12px; font-size: 11px;">澆置技術</span>
+                            <span style="background: #fef5e7; color: #744210; padding: 2px 8px; border-radius: 12px; font-size: 11px;">品質控制</span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">開始學習</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail">▥</div>
+                            <div class="course-info">
+                                <h4>高空作業安全管理</h4>
+                                <div class="course-meta">王美華 | 初級 | 38分鐘 | 4.9★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            從法規要求到實務操作，全面介紹高空作業的安全防護措施與管理要點。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span style="background: #fed7d7; color: #742a2a; padding: 2px 8px; border-radius: 12px; font-size: 11px;">安全管理</span>
+                            <span style="background: #e6f3ff; color: #2c5aa0; padding: 2px 8px; border-radius: 12px; font-size: 11px;">高空作業</span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">開始學習</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail">▦</div>
+                            <div class="course-info">
+                                <h4>鋼筋工程品質檢測</h4>
+                                <div class="course-meta">張明德 | 高級 | 52分鐘 | 4.7★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            深入講解鋼筋工程的檢測標準、檢測方法以及常見問題的識別與處理。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span style="background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 12px; font-size: 11px;">鋼筋工程</span>
+                            <span style="background: #fef5e7; color: #744210; padding: 2px 8px; border-radius: 12px; font-size: 11px;">品質檢測</span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">開始學習</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail">▧</div>
+                            <div class="course-info">
+                                <h4>專案進度管理實務</h4>
+                                <div class="course-meta">林建宏 | 中級 | 60分鐘 | 4.8★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            分享專案管理的實務經驗，包含進度控制、資源調配、風險管理等核心技能。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span style="background: #faf5ff; color: #553c9a; padding: 2px 8px; border-radius: 12px; font-size: 11px;">專案管理</span>
+                            <span style="background: #e6f3ff; color: #2c5aa0; padding: 2px 8px; border-radius: 12px; font-size: 11px;">進度控制</span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">開始學習</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示專家導師
+        function showExperts() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">專家導師團隊</div>
+                            <div class="section-subtitle">業界資深專家分享寶貴經驗與專業技能</div>
+                        </div>
+                        <button class="btn btn-primary">申請成為導師</button>
+                    </div>
+                </div>
+                
+                <div class="expert-cards">
+                    <div class="expert-card">
+                        <div class="expert-avatar">陳</div>
+                        <div class="expert-name">陳志強</div>
+                        <div class="expert-title">資深工程師 · 25年經驗</div>
+                        <div style="margin: 12px 0; font-size: 13px; line-height: 1.4; color: #4a5568;">
+                            專精於混凝土工程、結構施工，曾參與台北101、桃園機場等重大工程項目。
+                        </div>
+                        <div class="expert-stats">
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">156</div>
+                                <div class="expert-stat-label">學員</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">23</div>
+                                <div class="expert-stat-label">課程</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">4.9</div>
+                                <div class="expert-stat-label">評分</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 8px;">查看課程</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 8px;">私訊導師</button>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-card">
+                        <div class="expert-avatar">林</div>
+                        <div class="expert-name">林建宏</div>
+                        <div class="expert-title">專案經理 · 18年經驗</div>
+                        <div style="margin: 12px 0; font-size: 13px; line-height: 1.4; color: #4a5568;">
+                            擅長大型建設專案管理，成功管理超過50個建設專案，總價值超過200億元。
+                        </div>
+                        <div class="expert-stats">
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">132</div>
+                                <div class="expert-stat-label">學員</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">18</div>
+                                <div class="expert-stat-label">課程</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">4.8</div>
+                                <div class="expert-stat-label">評分</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 8px;">查看課程</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 8px;">私訊導師</button>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-card">
+                        <div class="expert-avatar">王</div>
+                        <div class="expert-name">王美華</div>
+                        <div class="expert-title">安全主管 · 22年經驗</div>
+                        <div style="margin: 12px 0; font-size: 13px; line-height: 1.4; color: #4a5568;">
+                            職業安全衛生專家，零事故管理經驗豐富，建立多套安全管理標準作業程序。
+                        </div>
+                        <div class="expert-stats">
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">189</div>
+                                <div class="expert-stat-label">學員</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">15</div>
+                                <div class="expert-stat-label">課程</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">4.9</div>
+                                <div class="expert-stat-label">評分</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 8px;">查看課程</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 8px;">私訊導師</button>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-card">
+                        <div class="expert-avatar">張</div>
+                        <div class="expert-name">張明德</div>
+                        <div class="expert-title">品管經理 · 30年經驗</div>
+                        <div style="margin: 12px 0; font-size: 13px; line-height: 1.4; color: #4a5568;">
+                            品質管理專家，建立完整的工程品質管制系統，輔導多家營造公司通過ISO認證。
+                        </div>
+                        <div class="expert-stats">
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">98</div>
+                                <div class="expert-stat-label">學員</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">12</div>
+                                <div class="expert-stat-label">課程</div>
+                            </div>
+                            <div class="expert-stat">
+                                <div class="expert-stat-value">4.7</div>
+                                <div class="expert-stat-label">評分</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 8px;">查看課程</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 8px;">私訊導師</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示知識庫
+        function showKnowledgeBase() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">專業知識庫</div>
+                            <div class="section-subtitle">AI自動整理的專家經驗與技術文檔</div>
+                        </div>
+                        <button class="btn btn-primary">貢獻知識</button>
+                    </div>
+                    
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">知識分類</label>
+                            <select class="form-control">
+                                <option>全部分類</option>
+                                <option>施工技術</option>
+                                <option>工程材料</option>
+                                <option>品質管理</option>
+                                <option>安全規範</option>
+                                <option>法規標準</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">內容類型</label>
+                            <select class="form-control">
+                                <option>全部類型</option>
+                                <option>技術文檔</option>
+                                <option>操作手冊</option>
+                                <option>案例研究</option>
+                                <option>標準規範</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">搜尋關鍵字</label>
+                            <input type="text" class="form-control" placeholder="輸入關鍵字搜尋">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">排序方式</label>
+                            <select class="form-control">
+                                <option>最新更新</option>
+                                <option>使用頻率</option>
+                                <option>專家推薦</option>
+                                <option>相關度</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <div class="section-title">知識內容</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>標題</th>
+                                <th>分類</th>
+                                <th>來源專家</th>
+                                <th>更新時間</th>
+                                <th>使用次數</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>混凝土強度檢測標準作業程序</td>
+                                <td><span class="status-badge status-active">品質管理</span></td>
+                                <td>張明德</td>
+                                <td>2024-12-30</td>
+                                <td>156</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">下載</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>高空作業安全檢查表</td>
+                                <td><span class="status-badge status-recording">安全規範</span></td>
+                                <td>王美華</td>
+                                <td>2024-12-29</td>
+                                <td>243</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">下載</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>鋼筋搭接長度計算公式與應用</td>
+                                <td><span class="status-badge status-completed">施工技術</span></td>
+                                <td>陳志強</td>
+                                <td>2024-12-28</td>
+                                <td>189</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">下載</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>工程變更管理流程指南</td>
+                                <td><span class="status-badge status-pending">專案管理</span></td>
+                                <td>林建宏</td>
+                                <td>2024-12-27</td>
+                                <td>87</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;">下載</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 顯示VR/AR體驗
+        function showVRAR() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="experience-card">
+                    <div class="experience-header">
+                        <div class="experience-icon">VR</div>
+                        <div>
+                            <div class="experience-title">沉浸式VR/AR學習平台</div>
+                            <div style="font-size: 14px; color: #718096; margin-top: 4px;">
+                                運用最新的虛擬實境與擴增實境技術，打造安全、高效的學習環境
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="course-cards">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">VR</div>
+                            <div class="course-info">
+                                <h4>VR高空作業安全訓練</h4>
+                                <div class="course-meta">王美華 | VR體驗 | 30分鐘 | 4.9★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            在虛擬的高空環境中學習安全作業程序，體驗各種危險情境的應對方法，無風險地掌握高空作業技能。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #bee3f8; color: #2a4365; padding: 2px 8px; border-radius: 12px; font-size: 11px;">VR體驗</span>
+                            <span style="background: #fed7d7; color: #742a2a; padding: 2px 8px; border-radius: 12px; font-size: 11px;">安全訓練</span>
+                        </div>
+                        <button class="btn btn-info" style="width: 100%;">開始VR體驗</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail" style="background: linear-gradient(135deg, #10b981, #059669);">AR</div>
+                            <div class="course-info">
+                                <h4>AR設備操作指導</h4>
+                                <div class="course-meta">陳志強 | AR體驗 | 25分鐘 | 4.8★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            透過擴增實境技術，在真實設備上疊加操作指導資訊，直觀學習各類施工機具的正確操作方法。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 12px; font-size: 11px;">AR體驗</span>
+                            <span style="background: #fef5e7; color: #744210; padding: 2px 8px; border-radius: 12px; font-size: 11px;">設備操作</span>
+                        </div>
+                        <button class="btn btn-success" style="width: 100%;">開始AR體驗</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">MR</div>
+                            <div class="course-info">
+                                <h4>混合實境品質檢測</h4>
+                                <div class="course-meta">張明德 | MR體驗 | 40分鐘 | 4.7★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            結合虛擬與真實環境，學習工程品質檢測的標準程序，實際操作各種檢測設備與方法。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #faf5ff; color: #553c9a; padding: 2px 8px; border-radius: 12px; font-size: 11px;">MR體驗</span>
+                            <span style="background: #fef5e7; color: #744210; padding: 2px 8px; border-radius: 12px; font-size: 11px;">品質檢測</span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">開始MR體驗</button>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-thumbnail" style="background: linear-gradient(135deg, #f59e0b, #d97706);">3D</div>
+                            <div class="course-info">
+                                <h4>3D建築結構展示</h4>
+                                <div class="course-meta">林建宏 | 3D模型 | 35分鐘 | 4.8★</div>
+                            </div>
+                        </div>
+                        <div class="course-description">
+                            運用3D模型技術，深入了解建築結構的各個細節，學習結構設計原理與施工要點。
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 12px; font-size: 11px;">3D模型</span>
+                            <span style="background: #e6f3ff; color: #2c5aa0; padding: 2px 8px; border-radius: 12px; font-size: 11px;">結構設計</span>
+                        </div>
+                        <button class="btn btn-warning" style="width: 100%;">開始3D體驗</button>
+                    </div>
+                </div>
+                
+                <div class="feature-section" style="margin-top: 24px;">
+                    <div class="section-title">VR/AR設備需求</div>
+                    <div style="background: #e6f3ff; padding: 20px; border-radius: 8px; margin-top: 16px;">
+                        <h4 style="margin-bottom: 12px; color: #2d3748;">建議設備配置</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div>
+                                <strong>VR頭戴裝置:</strong><br>
+                                <small>Meta Quest 3, HTC Vive Pro, Pico 4 Enterprise</small>
+                            </div>
+                            <div>
+                                <strong>AR智能眼鏡:</strong><br>
+                                <small>Microsoft HoloLens 2, Magic Leap 2</small>
+                            </div>
+                            <div>
+                                <strong>行動裝置:</strong><br>
+                                <small>支援ARCore/ARKit的智慧型手機或平板</small>
+                            </div>
+                            <div>
+                                <strong>電腦配置:</strong><br>
+                                <small>Intel i7/AMD R7, 16GB RAM, RTX 3060以上</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示上傳模組
+        function showUpload() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">專家經驗錄製與上傳</div>
+                            <div class="section-subtitle">AI自動將您的經驗轉化為結構化的學習內容</div>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-area" onclick="selectFiles()">
+                        <div style="font-size: 48px; color: #cbd5e0; margin-bottom: 16px;">+</div>
+                        <div style="font-size: 18px; font-weight: 600; color: #4a5568; margin-bottom: 8px;">
+                            上傳影片或音頻檔案
+                        </div>
+                        <div style="font-size: 14px; color: #718096; margin-bottom: 16px;">
+                            支援 MP4, MOV, MP3, WAV 等格式，檔案大小限制 2GB
+                        </div>
+                        <button class="btn btn-primary">選擇檔案</button>
+                        <div style="font-size: 12px; color: #a0aec0; margin-top: 8px;">
+                            或拖拽檔案至此處
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">內容標題</label>
+                            <input type="text" class="form-control" placeholder="為您的經驗分享取個標題">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">專業領域</label>
+                            <select class="form-control">
+                                <option>選擇專業領域</option>
+                                <option>施工技術</option>
+                                <option>安全管理</option>
+                                <option>品質控制</option>
+                                <option>專案管理</option>
+                                <option>設備操作</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">難度等級</label>
+                            <select class="form-control">
+                                <option>選擇難度等級</option>
+                                <option>初級 (新手適用)</option>
+                                <option>中級 (有基礎經驗)</option>
+                                <option>高級 (資深人員)</option>
+                                <option>專家級 (專業技術)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">預估學習時間</label>
+                            <input type="number" class="form-control" placeholder="分鐘">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">內容描述</label>
+                        <textarea class="form-control" rows="4" placeholder="詳細描述您要分享的經驗內容，包含重點、適用情境等"></textarea>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <label class="form-label">關鍵字標籤</label>
+                        <input type="text" class="form-control" placeholder="輸入相關關鍵字，用逗號分隔">
+                        <small style="color: #718096;">例如: 混凝土, 澆置技術, 品質控制, 施工安全</small>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="btn btn-primary" onclick="uploadContent()">
+                            開始AI智能處理
+                        </button>
+                        <button class="btn btn-secondary" style="margin-left: 12px;">
+                            儲存草稿
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <div class="section-title">AI處理功能說明</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">語音轉文字</h4>
+                            <p style="font-size: 13px; color: #718096;">自動將錄音內容轉換為文字稿，支援繁體中文與多種語言</p>
+                        </div>
+                        <div style="background: #c6f6d5; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">內容結構化</h4>
+                            <p style="font-size: 13px; color: #718096;">AI分析內容，自動產生章節標題、重點摘要與學習目標</p>
+                        </div>
+                        <div style="background: #fef5e7; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">知識提取</h4>
+                            <p style="font-size: 13px; color: #718096;">從經驗分享中提取關鍵知識點，建立可搜尋的知識庫</p>
+                        </div>
+                        <div style="background: #faf5ff; padding: 16px; border-radius: 8px;">
+                            <h4 style="color:極 #2d3748; margin-bottom: 8px;">課程生成</h4>
+                            <p style="font-size: 13px; color: #718096;">自動產生互動式課程內容，包含測驗題目與實作練習</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示學習進度
+        function showProgress() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">個人學習進度</div>
+                            <div class="section-subtitle">追蹤您的學習歷程與技能發展</div>
+                        </div>
+                        <button class="btn btn-secondary">匯出學習報告</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: #e6f3ff; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #2c5aa0;">23</div>
+                            <div style="font-size: 14px; color: #718096;">已完成課程</div>
+                        </div>
+                        <div style="background:極 #c6f6d5; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 700;極 color: #22543d;">156</div>
+                            <div style="font-size: 14px; color: #718096;">學習時數</div>
+                        </div>
+                        <div style="background: #fef5e7; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #744210;">12</div>
+                            <div style="font-size: 14px; color: #718096;">獲得證書</div>
+                        </div>
+                        <極div style="background: #faf5ff; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #553c9a;">4.8</div>
+                            <div style="font-size: 14px; color: #718096;">平均評分</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-section">
+                        <div class="section-title">技能發展圖表</div>
+                        <div style="margin-top: 20px;">
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 500; color: #2d3748;">混凝土工程</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #38a169;">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 極85%"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 500; color: #2d3748;">安全管理</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #38a169;">92%</div>
+                                </極div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="display:極 flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 500; color: #2d3748;">品質控制</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #ed8936;">68%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 500; color: #2d3748;">專案管理</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #ed8936;">45%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-section">
+                        <div class="section-title">最近學習活動</div>
+                        <div style="margin-top: 16px;">
+                            <div style="border-left: 3px solid #805ad5; padding-left: 12px; margin-bottom: 16px;">
+                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">完成課程</極div>
+                                <div style="極font-size: 13px; color: #4a5568; margin-bottom: 2px;">混凝土澆置技術精要</div>
+                                <div style="font-size: 11px; color: #718096;">2024-12-31 14:30</div>
+                            </div>
+                            
+                            <div style="border-left: 3px solid #38a169; padding-left: 12px; margin-bottom: 16px;">
+                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">獲得證書</div>
+                                <div style="font-size: 13px; color: #4a5568; margin-bottom: 2px;">工地安全管理實務</div>
+                                <div style="font-size: 11px; color: #718096;">2024-12-30 16:45</div>
+                            </div>
+                            
+                            <div style="border-left: 3px solid #0ea5e9; padding-left: 12px; margin-bottom: 16px;">
+                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">VR體驗</div>
+                                <div style="font-size: 13px; color: #4a5568; margin-bottom: 2px;">高空作業安全訓練</div>
+                                <div style="font-size: 11px; color: #718096;">2024-12-29 10:20</div>
+                            </div>
+                            
+                            <div style="border-left: 3px solid #ed8936; padding-left: 12px;">
+                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">開始學習</div>
+                                <div style="font-size: 13px; color: #4a556極8; margin-bottom: 2px;">鋼筋綁紮標準作業</div>
+                                <div style="font-size: 11px; color: #718096;">2024-12-28 09:15</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示AI導師
+        function showAITutor() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="feature-section">
+                    <div class="section-header">
+                        <div>
+                            <div class極="section-title">AI智能導師對話</div>
+                            <div class="section-subtitle">24小時專業問題解答與學習指導</div>
+                        </div>
+                        <button class="btn btn-secondary">清除對話記錄</button>
+                    </div>
+                    
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; height: 400px; margin-bottom: 20px; padding: 16px; overflow-y: auto;">
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #805ad5, #6極b46c1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; margin-right: 12px; flex-shrink: 0;">AI</div>
+                                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; max-width: 80%;">
+                                    <div style="font-size: 14px; line-height: 1.5;">
+                                        您好！我是互助營造的AI智能導師，基於23位資深專家的經驗訓練而成。我可以回答您關於施工技術、安全管理、品質控制等各方面的問題。請問今天有什麼可以幫助您的嗎？
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: flex-start; justify-content: flex-end; margin-bottom: 8px;">
+                                <div style="background: #805ad5; color: white; padding: 12px; border-radius: 8px; max-width: 80%;">
+                                    <div style="font-size: 極14px; line-height: 1.5;">
+                                        混凝土澆置時如果遇到下雨應該怎麼處理？
+                                    </div>
+                                </div>
+                                <div style="width: 32px; height: 32px; background: #4a5568; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; margin-left: 12px; flex-shrink: 0;">您</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #805ad5, #6b46c1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; margin-right: 12px; flex-shrink: 0;">AI</div>
+                                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2極e8f0; max-width: 80%;">
+                                    <div style="font-size: 14極px; line-height: 1.5;">
+                                        這是一個很重要的安全問題！根據陳志強師傅的經驗分享：<br><br>
+                                        <strong>立即處理步驟：</strong><br>
+                                        1. 立即停止澆置作業<br>
+                                        2. 使用防水布或塑膠布覆蓋已澆置區域<br>
+                                        3. 檢查現場排水系統是否暢通<br><br>
+                                        <strong>後極續處理：</strong><br>
+                                        - 小雨：可暫停等待，約1-2小時後視情況決定是否繼續<br>
+                                        - 大雨：應延後澆置，重新評估混凝土狀況<br>
+                                        - 已澆置部分：加強養護，避免表面沖刷<br><br>
+                                        需要我進一步說明雨天施工的其他注意事項嗎？
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <input type="text" class="form-control" placeholder="輸入您的問題..." style="flex: 1;">
+                        <button class="btn btn-primary">發送</button>
+                    </div>
+                    
+                    <div style="margin-top: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #4a5568;">常見問題快速選項</div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">鋼筋搭接長度計算</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">混凝土養護方法</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">高空作業安全</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">品質檢測標準</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">工程變更流程</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <div class="section-title">AI導師能力</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">專業問題解答</h4>
+                            <p style="font-size: 13px; color: #718096;">基於23位專家經驗，回答施工技術、安全管理等專業問題</p>
+                        </div>
+                        <div style="background: #c6極f6d5; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">個性化學習建議</h4>
+                            <p style="font-size: 13px; color: #718096;">分析您的學習進度，推薦最適合的學習路徑與課程</p>
+                        </div>
+                        <div style="background: #fef5e7; padding: 16px; border-radius: 8px;">
+                            <h極4 style="color: #2d3748; margin-bottom: 8px;">即時技術支援</h4>
+                            <p style="font-size: 13px; color: #718096;">24小時提供現場技術問題的即時解答與建議</p>
+                        </div>
+                        <div style="background: #faf5ff; padding: 16px; border-radius: 8px;">
+                            <h4 style="color: #2d3748; margin-bottom: 8px;">案例分析指導</h4>
+                            <p style="font-size: 13px; color: #718096;">結合實際案例，提供深入的技術分析與學習指導</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 功能函數
+        function selectFiles() {
+            alert('正在開啟檔案選擇器...');
+        }
+
+        function uploadContent() {
+            alert('開始AI智能處理...\n預計處理時間：5-10分鐘\n系統將自動進行語音轉文字、內容結構化與知識提取');
+        }
+
+        // 時間更新
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-TW') + ' ' + 
+                             now.toLocaleTimeString('zh-TW', { 
+                                 hour: '2-digit', 
+                                 minute: '2-digit' 
+                             });
+            // 更新時間顯示
+        }
+
+        // 初始化
+        updateTime();
+        setInterval(update極Time, 60000);
+    </script>
+</body>
+</html>

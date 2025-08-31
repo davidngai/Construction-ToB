@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互助營造 - 互助營造資源管理與協調系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        /* 側邊導航 */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: #f0f4f8;
+            border-left-color: #718096;
+        }
+
+        .nav-item.active {
+            background: #f0f4f8;
+            border-left-color: #718096;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            background: #edf2f7;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #718096;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .sidebar-footer div {
+            margin-bottom: 4px;
+        }
+
+        /* 主要內容區域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+
+        /* 專案資訊卡片 */
+        .project-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .project-status {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .project-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        /* 資源卡片 */
+        .resource-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #718096, #4a5568);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-change.positive {
+            color: #38a169;
+        }
+
+        .card-change.negative {
+            color: #e53e3e;
+        }
+
+        /* 儀表板網格 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 工地現狀表格 */
+        .site-status-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .site-status-table th,
+        .site-status-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        .site-status-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .contractor-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .worker-count {
+            font-weight: 500;
+            color: #2c5aa0;
+        }
+
+        .work-description {
+            color: #4a5568;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* 物料狀態 */
+        .material-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .material-item {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #718096;
+        }
+
+        .material-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .material-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .material-stock {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .stock-normal {
+            color: #38a169;
+        }
+
+        .stock-low {
+            color: #ed8936;
+        }
+
+        .stock-critical {
+            color: #e53e3e;
+        }
+
+        .material-unit {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .material-note {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        /* 天氣資訊 */
+        .weather-info {
+            background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .weather-current {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .weather-icon {
+            font-size: 24px;
+        }
+
+        .weather-temp {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .weather-desc {
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* 進度追蹤 */
+        .progress-item {
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .progress-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transition: width 0.3s ease;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .nav-item {
+                min-width: 120px;
+                flex-shrink: 0;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .resource-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header {
+                padding: 20px 16px;
+            }
+
+            .status-bar {
+                padding: 12px 16px;
+            }
+            
+            .sidebar-footer {
+                position: relative;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊導航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>資源管理系統</h3>
+                <p>新北市深坑區廠庫新建工程</p>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchModule('dashboard')">
+                    <div class="nav-icon">📊</div>
+                    <span>總覽儀表板</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('workforce')">
+                    <div class="nav-icon">👥</div>
+                    <span>人力調度</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('materials')">
+                    <div class="nav-icon">📦</div>
+                    <span>物料管理</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('weather')">
+                    <div class="nav-icon">🌤️</div>
+                    <span>天氣監控</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('progress')">
+                    <div class="nav-icon">📈</div>
+                    <span>進度追蹤</span>
+                </div>
+                <div class="nav-item" onclick="switchModule('reports')">
+                    <div class="nav-icon">📋</div>
+                    <span>日報分析</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div>© 2025 互助營造股份有限公司</div>
+                <div>Developed by NUS ASAP Lab</div>
+                <div>版本: 1.1.0</div>
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <div class="header">
+                <h1>互助營造資源管理與協調系统</h1>
+                <p>新北市深坑區廠庫新建工程 · 智能調度系統 · 即時數據監控</p>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="online-dot"></div>
+                    <span>系統運行正常</span>
+                </div>
+                <div>
+                    今日施工天數：第 <span id="currentDay">1183</span> 天 | 最後更新：<span id="lastUpdate">2024-12-31 14:30</span>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- 專案資訊 -->
+                <div class="project-info">
+                    <div class="project-header">
+                        <div class="project-title">新北市深坑區廠庫新建工程</div>
+                        <div class="project-status">施工中</div>
+                    </div>
+                    <div class="project-details">
+                        <div class="detail-item">
+                            <div class="detail-label">業主</div>
+                            <div class="detail-value">松新股份有限公司</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">工地負責人</div>
+                            <div class="detail-value">袁龍生 主任</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">工期起算日</div>
+                            <div class="detail-value">2021-10-06</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">規定完成天數</div>
+                            <div class="detail-value">1196 天</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">至今尚餘工作天</div>
+                            <div class="detail-value">13 天</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">總累計工日</div>
+                            <div class="detail-value">3670 工日</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 資源狀態卡片 -->
+                <div class="resource-cards">
+                    <div class="resource-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">今日在場人員</div>
+                                <div class="card-value">35</div>
+                                <div class="card-change positive">較昨日 +2人</div>
+                            </div>
+                            <div class="card-icon">👷</div>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">累計工日</div>
+                                <div class="card-value">2284</div>
+                                <div class="card-change positive">本月 +149</div>
+                            </div>
+                            <div class="card-icon">📈</div>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">使用機具</div>
+                                <div class="card-value">8</div>
+                                <div class="card-change">台機具運行</div>
+                            </div>
+                            <div class="card-icon">🔧</div>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">工程進度</div>
+                                <div class="card-value">98.9%</div>
+                                <div class="card-change positive">接近完工</div>
+                            </div>
+                            <div class="card-icon">✅</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要內容網格 -->
+                <div class="dashboard-grid">
+                    <!-- 今日施工狀況 -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">今日施工狀況</div>
+                                <div class="section-subtitle">2024年12月31日 - 各承包商作業情況</div>
+                            </div>
+                        </div>
+
+                        <div class="weather-info">
+                            <div class="weather-current">
+                                <div class="weather-icon">☀️</div>
+                                <div>
+                                    <div class="weather-temp">晴朗 26°C</div>
+                                    <div class="weather-desc">適合施工作業</div>
+                                </div>
+                            </div>
+                            <div class="weather-details">
+                                <div>濕度: 65%</div>
+                                <div>風速: 3m/s</div>
+                                <div>可見度: 良好</div>
+                            </div>
+                        </div>
+
+                        <table class="site-status-table">
+                            <thead>
+                                <tr>
+                                    <th>承包商</th>
+                                    <th>工種</th>
+                                    <th>人數</th>
+                                    <th>施工內容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="contractor-name">勝宏</td>
+                                    <td>組工</td>
+                                    <td class="worker-count">3人</td>
+                                    <td class="work-description">工區生活垃圾集中與休息區清理、聯外道路鋪面灑水養護</td>
+                                </tr>
+                                <tr>
+                                    <td class="contractor-name">樺藝</td>
+                                    <td>外構景觀</td>
+                                    <td class="worker-count">18人</td>
+                                    <td class="work-description">北側聯外水溝收尾，西南側木紋地磚施作，植栽區透水管安裝、灌木與草皮種植</td>
+                                </tr>
+                                <tr>
+                                    <td class="contractor-name">鍏榮</td>
+                                    <td>油漆工</td>
+                                    <td class="worker-count">2人</td>
+                                    <td class="work-description">室內牆面油漆收尾</td>
+                                </tr>
+                                <tr>
+                                    <td class="contractor-name">冠瑋</td>
+                                    <td>模板及放樣</td>
+                                    <td class="worker-count">6人</td>
+                                    <td class="work-description">模板工程與測量放樣作業</td>
+                                </tr>
+                                <tr>
+                                    <td class="contractor-name">恒豐</td>
+                                    <td>機電</td>
+                                    <td class="worker-count">8人</td>
+                                    <td class="work-description">機電設備安裝與配線作業</td>
+                                </tr>
+                                <tr>
+                                    <td class="contractor-name">瑞榮</td>
+                                    <td>鋼筋綁紮</td>
+                                    <td class="worker-count">7人</td>
+                                    <td class="work-description">結構鋼筋綁紮作業</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary">查看詳細工作分配</button>
+                            <button class="btn btn-secondary" style="margin-left: 8px;">人力調度建議</button>
+                        </div>
+                    </div>
+
+                    <!-- 物料與進度監控 -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">物料狀況</div>
+                                <div class="section-subtitle">主要材料庫存與使用情況</div>
+                            </div>
+                        </div>
+
+                        <div class="material-grid">
+                            <div class="material-item">
+                                <div class="material-name">水泥</div>
+                                <div class="material-stats">
+                                    <div class="material-stock stock-normal">充足</div>
+                                    <div class="material-unit">袋</div>
+                                </div>
+                                <div class="material-note">庫存充足，無需補充</div>
+                            </div>
+
+                            <div class="material-item">
+                                <div class="material-name">鋼筋</div>
+                                <div class="material-stats">
+                                    <div class="material-stock stock-normal">166.53</div>
+                                    <div class="material-unit">噸</div>
+                                </div>
+                                <div class="material-note">SD280/SD420W 庫存正常</div>
+                            </div>
+
+                            <div class="material-item">
+                                <div class="material-name">預拌混凝土</div>
+                                <div class="material-stats">
+                                    <div class="material-stock stock-normal">1671.5</div>
+                                    <div class="material-unit">M³</div>
+                                </div>
+                                <div class="material-note">各強度級別庫存充足</div>
+                            </div>
+
+                            <div class="material-item">
+                                <div class="material-name">紅磚</div>
+                                <div class="material-stats">
+                                    <div class="material-stock stock-normal">充足</div>
+                                    <div class="material-unit">塊</div>
+                                </div>
+                                <div class="material-note">砌築作業材料充足</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px;">
+                            <div class="section-title" style="font-size: 1.1rem; margin-bottom: 16px;">工程進度追蹤</div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">整體工程進度</div>
+                                    <div class="progress-value">98.9%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 98.9%"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">外構景觀工程</div>
+                                    <div class="progress-value">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">機電安裝工程</div>
+                                    <div class="progress-value">92%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">裝修收尾工程</div>
+                                    <div class="progress-value">78%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 78%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary">查看物料詳情</button>
+                            <button class="btn btn-secondary" style="margin-left: 8px;">進度報告</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模組切換功能
+        function switchModule(moduleName) {
+            // 移除所有導航項目的active狀態
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 添加當前點擊項目的active狀態
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // 切換內容區域
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(moduleName) {
+                case 'dashboard':
+                    // 已經是預設顯示的內容
+                    break;
+                case 'workforce':
+                    showWorkforceManagement();
+                    break;
+                case 'materials':
+                    showMaterialsManagement();
+                    break;
+                case 'weather':
+                    showWeatherMonitoring();
+                    break;
+                case 'progress':
+                    showProgressTracking();
+                    break;
+                case 'reports':
+                    showDailyReports();
+                    break;
+            }
+        }
+
+        function showWorkforceManagement() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">人力資源調度管理</div>
+                            <div class="section-subtitle">基於實際工程日報的人力配置與調度建議</div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-grid">
+                        <div class="material-item" style="border-left-color: #48bb78;">
+                            <div class="material-name">樺藝營造（外構景觀）</div>
+                            <div class="material-stats">
+                                <div class="material-stock stock-normal">18人</div>
+                                <div class="material-unit">本日施工</div>
+                            </div>
+                            <div class="material-note">植栽工程與地磚施作，建議維持人力配置</div>
+                        </div>
+                        
+                        <div class="material-item" style="border-left-color: #ed8936;">
+                            <div class="material-name">恒豐機電</div>
+                            <div class="material-stats">
+                                <div class="material-stock stock-low">8人</div>
+                                <div class="material-unit">機電工程</div>
+                            </div>
+                            <div class="material-note">建議增加2-3人加速收尾作業</div>
+                        </div>
+                        
+                        <div class="material-item" style="border-left-color: #38a169;">
+                            <div class="material-name">瑞榮鋼筋</div>
+                            <div class="material-stats">
+                                <div class="material-stock stock-normal">7人</div>
+                                <div class="material-unit">鋼筋作業</div>
+                            </div>
+                            <div class="material-note">人力配置適當，作業進度良好</div>
+                        </div>
+                        
+                        <div class="material-item" style="border-left-color: #4299e1;">
+                            <div class="material-name">冠瑋模板</div>
+                            <div class="material-stats">
+                                <div class="material-stock stock-normal">6人</div>
+                                <div class="material-unit">模板工程</div>
+                            </div>
+                            <div class="material-note">配合混凝土澆置，人力調配彈性佳</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <h4 style="margin-bottom: 16px; color: #4a5568;">今日人力調度建議</h4>
+                        <div style="background: #e6f3ff; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong>建議一：</strong> 樺藝外構工程人力充足，預計可於3日內完成植栽工程
+                        </div>
+                        <div style="background: #fef5e7; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong>建議二：</strong> 機電工程建議增派人力，確保如期完工
+                        </div>
+                        <div style="background: #c6f6d5; padding: 16px; border-radius: 8px;">
+                            <strong>建議三：</strong> 整體人力配置合理，可維持當前進度
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showMaterialsManagement() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">物料管理系統</div>
+                            <div class="section-subtitle">基於工程日報的材料使用分析與庫存管理</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">主要材料庫存狀況</h4>
+                            <div class="material-grid">
+                                <div class="material-item">
+                                    <div class="material-name">鋼筋 (SD280W/SD420W)</div>
+                                    <div class="material-stats">
+                                        <div class="material-stock stock-normal">166.53</div>
+                                        <div class="material-unit">噸</div>
+                                    </div>
+                                    <div class="material-note">累計進場 166.53噸，庫存充足</div>
+                                </div>
+                                
+                                <div class="material-item">
+                                    <div class="material-name">預拌混凝土</div>
+                                    <div class="material-stats">
+                                        <div class="material-stock stock-normal">1671.5</div>
+                                        <div class="material-unit">M³</div>
+                                    </div>
+                                    <div class="material-note">各強度等級庫存正常</div>
+                                </div>
+                                
+                                <div class="material-item">
+                                    <div class="material-name">水泥</div>
+                                    <div class="material-stats">
+                                        <div class="material-stock stock-normal">充足</div>
+                                        <div class="material-unit">包</div>
+                                    </div>
+                                    <div class="material-note">425型普通硅酸鹽水泥</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">材料使用趨勢</h4>
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                                <div style="margin-bottom: 16px;">
+                                    <strong>本月材料使用分析：</strong>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 混凝土使用量: 225M³ (本月新增)
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 鋼筋消耗: 1.2噸/日 (平均)
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 主要用於外構工程與收尾作業
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    • 預估剩餘工期材料需求: 95%已備齊
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 12px; color: #4a5568;">採購建議</h5>
+                                <div style="background: #c6f6d5; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                                    ✓ 目前庫存充足，無需緊急採購
+                                </div>
+                                <div style="background: #e6f3ff; padding: 12px; border-radius: 6px;">
+                                    ℹ️ 建議預備少量收尾材料以防不測
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showWeatherMonitoring() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">天氣監控與施工建議</div>
+                            <div class="section-subtitle">基於天氣條件的智能施工調度建議</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <div class="weather-info" style="margin-bottom: 20px;">
+                                <div class="weather-current">
+                                    <div class="weather-icon">☀️</div>
+                                    <div>
+                                        <div class="weather-temp">晴朗 26°C</div>
+                                        <div class="weather-desc">非常適合所有類型施工作業</div>
+                                    </div>
+                                </div>
+                                <div class="weather-details">
+                                    <div>濕度: 65%</div>
+                                    <div>風速: 3m/s</div>
+                                    <div>可見度: 10km</div>
+                                </div>
+                            </div>
+                            
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">未來3天天氣預報</h4>
+                            <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                                <div style="margin-bottom: 12px;">
+                                    <strong>明天 (1/1):</strong> 晴朗 22-28°C，適合戶外作業
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <strong>後天 (1/2):</strong> 多雲 20-25°C，適合一般施工
+                                </div>
+                                <div>
+                                    <strong>大後天 (1/3):</strong> 晴朗 24-29°C，絕佳施工天氣
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">基於天氣的施工建議</h4>
+                            
+                            <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>✓ 建議執行作業：</strong><br>
+                                • 外構植栽工程（樺藝18人）<br>
+                                • 道路鋪面作業<br>
+                                • 戶外收尾工程<br>
+                                • 材料運輸與堆置
+                            </div>
+                            
+                            <div style="background: #e6f3ff; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>📊 天氣對施工的影響分析：</strong><br>
+                                • 晴朗天氣有利於混凝土養護<br>
+                                • 低濕度適合油漆作業<br>
+                                • 微風有助於空氣流通<br>
+                                • 能見度佳確保作業安全
+                            </div>
+                            
+                            <div style="background: #fef5e7; padding: 16px; border-radius: 8px;">
+                                <strong>⚠️ 注意事項：</strong><br>
+                                • 氣溫較高，注意人員防暑<br>
+                                • 適度灑水降塵<br>
+                                • 確保充足飲水供應<br>
+                                • 避免中午高溫時段重體力作業
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showProgressTracking() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">工程進度追蹤</div>
+                            <div class="section-subtitle">基於工程日報的進度分析與預測</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">整體進度概況</h4>
+                            
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">總體工程進度</div>
+                                    <div class="progress-value">98.9%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 98.9%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    已完成 1183/1196 天，剩餘 13 天
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">外構景觀工程</div>
+                                    <div class="progress-value">85%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    樺藝承攬，植栽與地磚施作中
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">機電工程</div>
+                                    <div class="progress-value">92%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    恒豐機電，累計 974 工日
+                                </div>
+                            </div>
+
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-label">裝修收尾</div>
+                                    <div class="progress-value">95%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 95%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                    鍏榮油漆，室內牆面收尾中
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">進度分析與預測</h4>
+                            
+                            <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>✓ 進度超前項目：</strong><br>
+                                • 結構工程：已完成<br>
+                                • 防水工程：已完成<br>
+                                • 主體裝修：95%完成<br>
+                                • 機電安裝：92%完成
+                            </div>
+                            
+                            <div style="background: #fef5e7; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>⏳ 進行中項目：</strong><br>
+                                • 外構景觀：85%完成，預計3天完工<br>
+                                • 道路鋪面：最後階段施工中<br>
+                                • 環境清理：同步進行<br>
+                                • 驗收準備：各項檢查中
+                            </div>
+                            
+                            <div style="background: #e6f3ff; padding: 16px; border-radius: 8px;">
+                                <strong>📈 完工預測：</strong><br>
+                                • 預計完工日期：2025年1月10日<br>
+                                • 較原定工期提前完成<br>
+                                • 總工日預估：2300工日<br>
+                                • 整體工程品質：優良
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showDailyReports() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">工程日報分析</div>
+                            <div class="section-subtitle">基於實際日報數據的統計分析與趨勢預測</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin-bottom: 16px; color: #4a5568;">最近7天施工摘要</h4>
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #2c5aa0;">149</div>
+                                    <div style="font-size: 12px; color: #718096;">本月新增工日</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #38a169;">95%</div>
+                                    <div style="font-size: 12px; color: #718096;">平均出勤率</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #ed8936;">31</div>
+                                    <div style="font-size: 12px; color: #718096;">日均施工人數</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #9f7aea;">8</div>
+                                    <div style="font-size: 12px; color: #718096;">參與承包商數</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">主要承包商工作統計</h4>
+                            <table class="site-status-table">
+                                <thead>
+                                    <tr>
+                                        <th>承包商</th>
+                                        <th>累計工日</th>
+                                        <th>主要工作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="contractor-name">恒豐機電</td>
+                                        <td class="worker-count">974</td>
+                                        <td class="work-description">機電設備安裝</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="contractor-name">冠瑋模板</td>
+                                        <td class="worker-count">806</td>
+                                        <td class="work-description">模板工程與放樣</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="contractor-name">瑞榮鋼筋</td>
+                                        <td class="worker-count">515</td>
+                                        <td class="work-description">鋼筋綁紮作業</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="contractor-name">樺藝外構</td>
+                                        <td class="worker-count">317</td>
+                                        <td class="work-description">外構景觀工程</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="contractor-name">勝宏組工</td>
+                                        <td class="worker-count">212</td>
+                                        <td class="work-description">清潔與雜項工程</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin-bottom: 16px; color: #4a5568;">工程效率分析</h4>
+                            
+                            <div style="background: #c6f6d5; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>💪 高效率承包商：</strong><br>
+                                • 恒豐機電：累計974工日，進度超前<br>
+                                • 冠瑋模板：配合度高，品質穩定<br>
+                                • 瑞榮鋼筋：專業技術，效率優良
+                            </div>
+                            
+                            <div style="background: #e6f3ff; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong>📊 趨勢分析：</strong><br>
+                                • 12月份工作強度提升明顯<br>
+                                • 外構工程加速進行中<br>
+                                • 收尾階段協調良好<br>
+                                • 預計提前完工可能性高
+                            </div>
+                            
+                            <div style="background: #fef5e7; padding: 16px; border-radius: 8px;">
+                                <strong>🎯 改善建議：</strong><br>
+                                • 加強各工種間協調配合<br>
+                                • 優化材料供應時程<br>
+                                • 提前準備驗收相關資料<br>
+                                • 持續監控品質標準
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 定期更新時間
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-TW') + ' ' + 
+                             now.toLocaleTimeString('zh-TW', { 
+                                 hour: '2-digit', 
+                                 minute: '2-digit' 
+                             });
+            document.getElementById('lastUpdate').textContent = timeString;
+        }
+
+        // 初始化
+        updateTime();
+        setInterval(updateTime, 60000); // 每分鐘更新一次
+
+        // 模擬數據更新
+        function simulateDataUpdate() {
+            // 隨機更新一些數值來模擬即時性
+            const currentDay = document.getElementById('currentDay');
+            if (currentDay) {
+                // 模擬天數可能的小幅變動
+                const baseDay = 1183;
+                currentDay.textContent = baseDay;
+            }
+        }
+
+        // 每30秒模擬一次數據更新
+        setInterval(simulateDataUpdate, 30000);
+    </script>
+</body>
+</html>

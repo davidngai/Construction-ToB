@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互助營造 - 施工知識AI助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            height: 100vh;
+            overflow: hidden;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 側邊欄樣式 */
+        .sidebar {
+            width: 380px;
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+            padding: 24px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .docs-filter {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .docs-filter select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            color: #4a5568;
+            transition: border-color 0.3s;
+        }
+
+        .docs-filter select:focus {
+            outline: none;
+            border-color: #718096;
+        }
+
+        .docs-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            background: #f7fafc;
+        }
+
+        .docs-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .docs-list::-webkit-scrollbar-track {
+            background: #edf2f7;
+        }
+
+        .docs-list::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .docs-list::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        .doc-category {
+            margin-bottom: 12px;
+        }
+
+        .category-header {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .doc-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: #4a5568;
+            border-left: 3px solid transparent;
+        }
+
+        .doc-item:hover {
+            border-color: #cbd5e0;
+            border-left-color: #718096;
+            background: #f7fafc;
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .doc-item.active {
+            border-left-color: #718096;
+            background: #f0f4f8;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .doc-code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .doc-title {
+            color: #2d3748;
+            margin-left: 8px;
+        }
+
+        .docs-stats {
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+        }
+
+        /* 聊天區域樣式 */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .mobile-sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .mobile-sidebar-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .chat-title h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .chat-title p {
+            opacity: 0.9;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #a0aec0, #718096);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.6;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .message.bot .message-content {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+            color: #2d3748;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+
+        .document-reference {
+            background: linear-gradient(135deg, #f0f4f8, #e6f3ff);
+            border-left: 4px solid #718096;
+            padding: 14px 16px;
+            margin: 14px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .document-reference:hover {
+            background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+            transform: translateX(2px);
+        }
+
+        .document-reference .doc-title {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .document-reference .doc-content {
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .document-reference .doc-source {
+            color: #718096;
+            font-size: 11px;
+        }
+
+        .reference-indicator {
+            background: #718096;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .typing-indicator .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .typing-dots {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 16px 24px;
+            border-radius: 16px;
+            display: flex;
+            gap: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #cbd5e0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            padding: 24px 32px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 48px;
+            max-height: 120px;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 24px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #718096;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(113, 128, 150, 0.1);
+        }
+
+        .send-button {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+        }
+
+        .send-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(113, 128, 150, 0.4);
+        }
+
+        .send-button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-question {
+            background: #f7fafc;
+            color: #4a5568;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        .quick-question:hover {
+            background: #718096;
+            color: white;
+            border-color: #718096;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #718096;
+            padding: 48px 32px;
+        }
+
+        .welcome-message h3 {
+            color: #4a5568;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .welcome-message p {
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 13px;
+            border-left: 4px solid #e53e3e;
+        }
+
+        /* 行動裝置適配 */
+        @media (max-width: 768px) {
+            .app-container {
+                position: relative;
+                border-radius: 0;
+            }
+
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 1000;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            }
+
+            .mobile-sidebar-toggle {
+                display: block;
+            }
+
+            .chat-header {
+                padding: 20px;
+            }
+
+            .chat-title h1 {
+                font-size: 1.3rem;
+            }
+
+            .chat-messages {
+                padding: 20px;
+            }
+
+            .chat-input-container {
+                padding: 20px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .quick-questions {
+                justify-content: center;
+            }
+        }
+
+        /* 文件預覽模態框 */
+        .doc-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .doc-modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .doc-modal-header {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .doc-modal-close:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .doc-modal-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊欄 - 規範文件目錄 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>規範文件目錄</h3>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">✕</button>
+            </div>
+            
+            <div class="docs-filter">
+                <select id="docsFilter" onchange="filterDocuments()">
+                    <option value="all">所有規範</option>
+                    <option value="general">一般條款</option>
+                    <option value="management">管理類</option>
+                    <option value="construction">施工類</option>
+                    <option value="materials">材料類</option>
+                    <option value="finishing">裝修類</option>
+                    <option value="equipment">設備類</option>
+                </select>
+            </div>
+
+            <div class="docs-list" id="docsList">
+                <!-- 一般條款 -->
+                <div class="doc-category">
+                    <div class="category-header">一般條款</div>
+                    <div class="doc-item" onclick="selectDocument('00700')" data-doc-id="00700">
+                        <span class="doc-code">00700</span><span class="doc-title">一般條款</span>
+                    </div>
+                </div>
+
+                <!-- 管理類 -->
+                <div class="doc-category">
+                    <div class="category-header">管理類</div>
+                    <div class="doc-item" onclick="selectDocument('01000')" data-doc-id="01000">
+                        <span class="doc-code">01000</span><span class="doc-title">總則</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01103')" data-doc-id="01103">
+                        <span class="doc-code">01103</span><span class="doc-title">進度管理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01271')" data-doc-id="01271">
+                        <span class="doc-code">01271</span><span class="doc-title">計量與計價</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01312')" data-doc-id="01312">
+                        <span class="doc-code">01312</span><span class="doc-title">工作協調</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01314')" data-doc-id="01314">
+                        <span class="doc-code">01314</span><span class="doc-title">工程會議</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01320')" data-doc-id="01320">
+                        <span class="doc-code">01320</span><span class="doc-title">施工過程文件紀錄</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01322')" data-doc-id="01322">
+                        <span class="doc-code">01322</span><span class="doc-title">工地監督</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01330')" data-doc-id="01330">
+                        <span class="doc-code">01330</span><span class="doc-title">資料送審</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01420')" data-doc-id="01420">
+                        <span class="doc-code">01420</span><span class="doc-title">參考標準</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01450')" data-doc-id="01450">
+                        <span class="doc-code">01450</span><span class="doc-title">品質管理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01451')" data-doc-id="01451">
+                        <span class="doc-code">01451</span><span class="doc-title">品質計畫</span>
+                    </div>
+                </div>
+
+                <!-- 施工類 -->
+                <div class="doc-category">
+                    <div class="category-header">施工類</div>
+                    <div class="doc-item" onclick="selectDocument('01500')" data-doc-id="01500">
+                        <span class="doc-code">01500</span><span class="doc-title">施工臨時設施及管制</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01510')" data-doc-id="01510">
+                        <span class="doc-code">01510</span><span class="doc-title">臨時設施</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01521')" data-doc-id="01521">
+                        <span class="doc-code">01521</span><span class="doc-title">施工中安全防護網</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01523')" data-doc-id="01523">
+                        <span class="doc-code">01523</span><span class="doc-title">施工安全衛生及管理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01532')" data-doc-id="01532">
+                        <span class="doc-code">01532</span><span class="doc-title">開挖臨時覆蓋板及其支撐</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01556')" data-doc-id="01556">
+                        <span class="doc-code">01556</span><span class="doc-title">交通維持</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01561')" data-doc-id="01561">
+                        <span class="doc-code">01561</span><span class="doc-title">行車導引護欄</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01564')" data-doc-id="01564">
+                        <span class="doc-code">01564</span><span class="doc-title">施工圍籬</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01572')" data-doc-id="01572">
+                        <span class="doc-code">01572</span><span class="doc-title">環境保護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01574')" data-doc-id="01574">
+                        <span class="doc-code">01574</span><span class="doc-title">勞工安全衛生</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01581')" data-doc-id="01581">
+                        <span class="doc-code">01581</span><span class="doc-title">工程告示牌</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01582')" data-doc-id="01582">
+                        <span class="doc-code">01582</span><span class="doc-title">施工警告標示</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01583')" data-doc-id="01583">
+                        <span class="doc-code">01583</span><span class="doc-title">工程告示牌及工地標誌</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01725')" data-doc-id="01725">
+                        <span class="doc-code">01725</span><span class="doc-title">施工測量</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01740')" data-doc-id="01740">
+                        <span class="doc-code">01740</span><span class="doc-title">清理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01773')" data-doc-id="01773">
+                        <span class="doc-code">01773</span><span class="doc-title">竣工驗收要項</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01781')" data-doc-id="01781">
+                        <span class="doc-code">01781</span><span class="doc-title">竣工文件</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01820')" data-doc-id="01820">
+                        <span class="doc-code">01820</span><span class="doc-title">試運轉及訓練</span>
+                    </div>
+                </div>
+
+                <!-- 材料與產品類 -->
+                <div class="doc-category">
+                    <div class="category-header">材料與產品類</div>
+                    <div class="doc-item" onclick="selectDocument('01610')" data-doc-id="01610">
+                        <span class="doc-code">01610</span><span class="doc-title">基本產品需求</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01620')" data-doc-id="01620">
+                        <span class="doc-code">01620</span><span class="doc-title">產品選擇</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01630')" data-doc-id="01630">
+                        <span class="doc-code">01630</span><span class="doc-title">同等品替代程序</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01640')" data-doc-id="01640">
+                        <span class="doc-code">01640</span><span class="doc-title">業主供給產品</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('01661')" data-doc-id="01661">
+                        <span class="doc-code">01661</span><span class="doc-title">儲存與保管</span>
+                    </div>
+                </div>
+
+                <!-- 土建工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">土建工程類</div>
+                    <div class="doc-item" onclick="selectDocument('02231')" data-doc-id="02231">
+                        <span class="doc-code">02231</span><span class="doc-title">清除及掘除</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02240')" data-doc-id="02240">
+                        <span class="doc-code">02240</span><span class="doc-title">怯水</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02252')" data-doc-id="02252">
+                        <span class="doc-code">02252</span><span class="doc-title">公共管線系統之保護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02253')" data-doc-id="02253">
+                        <span class="doc-code">02253</span><span class="doc-title">建築物及構造物之保護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02258')" data-doc-id="02258">
+                        <span class="doc-code">02258</span><span class="doc-title">臨時擋土安全支撐系統</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02260')" data-doc-id="02260">
+                        <span class="doc-code">02260</span><span class="doc-title">開挖支撐及保護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02266')" data-doc-id="02266">
+                        <span class="doc-code">02266</span><span class="doc-title">連續壁</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02291')" data-doc-id="02291">
+                        <span class="doc-code">02291</span><span class="doc-title">工程施工前鄰近建築物現況調查</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02300')" data-doc-id="02300">
+                        <span class="doc-code">02300</span><span class="doc-title">土方工作</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02316')" data-doc-id="02316">
+                        <span class="doc-code">02316</span><span class="doc-title">構造物開挖</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02317')" data-doc-id="02317">
+                        <span class="doc-code">02317</span><span class="doc-title">構造物回填</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02323')" data-doc-id="02323">
+                        <span class="doc-code">02323</span><span class="doc-title">棄土</span>
+                    </div>
+                </div>
+
+                <!-- 公共設施與景觀類 -->
+                <div class="doc-category">
+                    <div class="category-header">公共設施與景觀類</div>
+                    <div class="doc-item" onclick="selectDocument('02631')" data-doc-id="02631">
+                        <span class="doc-code">02631</span><span class="doc-title">進(集)水井.沉砂井及人孔</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02635')" data-doc-id="02635">
+                        <span class="doc-code">02635</span><span class="doc-title">雨水排水</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02786')" data-doc-id="02786">
+                        <span class="doc-code">02786</span><span class="doc-title">高壓混凝土地磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02897')" data-doc-id="02897">
+                        <span class="doc-code">02897</span><span class="doc-title">路權界樁及都市計劃樁</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02898')" data-doc-id="02898">
+                        <span class="doc-code">02898</span><span class="doc-title">車位標線.車輪擋.防撞條</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02900')" data-doc-id="02900">
+                        <span class="doc-code">02900</span><span class="doc-title">植栽</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02902')" data-doc-id="02902">
+                        <span class="doc-code">02902</span><span class="doc-title">種植及移植一般規定</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02905')" data-doc-id="02905">
+                        <span class="doc-code">02905</span><span class="doc-title">移植</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02910')" data-doc-id="02910">
+                        <span class="doc-code">02910</span><span class="doc-title">植栽准備</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02920')" data-doc-id="02920">
+                        <span class="doc-code">02920</span><span class="doc-title">植草</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02931')" data-doc-id="02931">
+                        <span class="doc-code">02931</span><span class="doc-title">植樹</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02936')" data-doc-id="02936">
+                        <span class="doc-code">02936</span><span class="doc-title">現地植栽保護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('02952')" data-doc-id="02952">
+                        <span class="doc-code">02952</span><span class="doc-title">鄰近道路維護施工及復舊</span>
+                    </div>
+                </div>
+
+                <!-- 混凝土工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">混凝土工程類</div>
+                    <div class="doc-item" onclick="selectDocument('03050')" data-doc-id="03050">
+                        <span class="doc-code">03050</span><span class="doc-title">混凝土基本材料及施工一般要求</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03110')" data-doc-id="03110">
+                        <span class="doc-code">03110</span><span class="doc-title">場鑄結構混凝土用模板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03150')" data-doc-id="03150">
+                        <span class="doc-code">03150</span><span class="doc-title">混凝土附屬品</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03210')" data-doc-id="03210">
+                        <span class="doc-code">03210</span><span class="doc-title">鋼筋</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03220')" data-doc-id="03220">
+                        <span class="doc-code">03220</span><span class="doc-title">銲接鋼線網</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03310')" data-doc-id="03310">
+                        <span class="doc-code">03310</span><span class="doc-title">結構用混凝土</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03315')" data-doc-id="03315">
+                        <span class="doc-code">03315</span><span class="doc-title">自充填混凝土</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03350')" data-doc-id="03350">
+                        <span class="doc-code">03350</span><span class="doc-title">混凝土表面修飾</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03390')" data-doc-id="03390">
+                        <span class="doc-code">03390</span><span class="doc-title">混凝土養護</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('03601')" data-doc-id="03601">
+                        <span class="doc-code">03601</span><span class="doc-title">無收縮水泥砂漿</span>
+                    </div>
+                </div>
+
+                <!-- 砌築工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">砌築工程類</div>
+                    <div class="doc-item" onclick="selectDocument('04061')" data-doc-id="04061">
+                        <span class="doc-code">04061</span><span class="doc-title">水泥砂漿</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('04211')" data-doc-id="04211">
+                        <span class="doc-code">04211</span><span class="doc-title">砌紅磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('04220')" data-doc-id="04220">
+                        <span class="doc-code">04220</span><span class="doc-title">混凝土磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('04410')" data-doc-id="04410">
+                        <span class="doc-code">04410</span><span class="doc-title">石材</span>
+                    </div>
+                </div>
+
+                <!-- 金屬工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">金屬工程類</div>
+                    <div class="doc-item" onclick="selectDocument('05081')" data-doc-id="05081">
+                        <span class="doc-code">05081</span><span class="doc-title">熱浸鍍鋅處理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05091')" data-doc-id="05091">
+                        <span class="doc-code">05091</span><span class="doc-title">鋼結構銲接</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05124')" data-doc-id="05124">
+                        <span class="doc-code">05124</span><span class="doc-title">建築鋼結構</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05310')" data-doc-id="05310">
+                        <span class="doc-code">05310</span><span class="doc-title">鋼承版</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05503')" data-doc-id="05503">
+                        <span class="doc-code">05503</span><span class="doc-title">建築用金屬製品</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05520')" data-doc-id="05520">
+                        <span class="doc-code">05520</span><span class="doc-title">扶手及欄杆</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05523')" data-doc-id="05523">
+                        <span class="doc-code">05523</span><span class="doc-title">不銹鋼欄杆</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05530')" data-doc-id="05530">
+                        <span class="doc-code">05530</span><span class="doc-title">金屬格柵蓋板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05531')" data-doc-id="05531">
+                        <span class="doc-code">05531</span><span class="doc-title">鋁格柵及蓋板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05731')" data-doc-id="05731">
+                        <span class="doc-code">05731</span><span class="doc-title">烤漆鋁板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05732')" data-doc-id="05732">
+                        <span class="doc-code">05732</span><span class="doc-title">烤漆鋼板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('05733')" data-doc-id="05733">
+                        <span class="doc-code">05733</span><span class="doc-title">不銹鋼板</span>
+                    </div>
+                </div>
+
+                <!-- 防水保溫類 -->
+                <div class="doc-category">
+                    <div class="category-header">防水保溫類</div>
+                    <div class="doc-item" onclick="selectDocument('07110')" data-doc-id="07110">
+                        <span class="doc-code">07110</span><span class="doc-title">防潮防水工程</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07111')" data-doc-id="07111">
+                        <span class="doc-code">07111</span><span class="doc-title">塗液類防潮</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07112')" data-doc-id="07112">
+                        <span class="doc-code">07112</span><span class="doc-title">防水水泥砂漿粉刷</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07113')" data-doc-id="07113">
+                        <span class="doc-code">07113</span><span class="doc-title">膜層類防潮</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07145')" data-doc-id="07145">
+                        <span class="doc-code">07145</span><span class="doc-title">水泥基防水</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07220')" data-doc-id="07220">
+                        <span class="doc-code">07220</span><span class="doc-title">屋頂及樓板隔熱</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07505')" data-doc-id="07505">
+                        <span class="doc-code">07505</span><span class="doc-title">屋頂防水層</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07811')" data-doc-id="07811">
+                        <span class="doc-code">07811</span><span class="doc-title">噴附式防火被覆</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07840')" data-doc-id="07840">
+                        <span class="doc-code">07840</span><span class="doc-title">防火阻絕</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07900')" data-doc-id="07900">
+                        <span class="doc-code">07900</span><span class="doc-title">填縫料</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('07921')" data-doc-id="07921">
+                        <span class="doc-code">07921</span><span class="doc-title">填縫材</span>
+                    </div>
+                </div>
+
+                <!-- 門窗工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">門窗工程類</div>
+                    <div class="doc-item" onclick="selectDocument('08100')" data-doc-id="08100">
+                        <span class="doc-code">08100</span><span class="doc-title">金屬門扇及門樘</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08130')" data-doc-id="08130">
+                        <span class="doc-code">08130</span><span class="doc-title">不銹鋼門扇及門樘</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08170')" data-doc-id="08170">
+                        <span class="doc-code">08170</span><span class="doc-title">防火金屬門扇及門樘</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08330')" data-doc-id="08330">
+                        <span class="doc-code">08330</span><span class="doc-title">捲門及格柵捲門</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08393')" data-doc-id="08393">
+                        <span class="doc-code">08393</span><span class="doc-title">防水閘門</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08700')" data-doc-id="08700">
+                        <span class="doc-code">08700</span><span class="doc-title">門窗五金</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08710')" data-doc-id="08710">
+                        <span class="doc-code">08710</span><span class="doc-title">門五金</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08711')" data-doc-id="08711">
+                        <span class="doc-code">08711</span><span class="doc-title">標準門鉸鏈</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08800')" data-doc-id="08800">
+                        <span class="doc-code">08800</span><span class="doc-title">玻璃及鑲嵌</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('08810')" data-doc-id="08810">
+                        <span class="doc-code">08810</span><span class="doc-title">玻璃</span>
+                    </div>
+                </div>
+
+                <!-- 裝修工程類 -->
+                <div class="doc-category">
+                    <div class="category-header">裝修工程類</div>
+                    <div class="doc-item" onclick="selectDocument('09206')" data-doc-id="09206">
+                        <span class="doc-code">09206</span><span class="doc-title">踢腳板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09220')" data-doc-id="09220">
+                        <span class="doc-code">09220</span><span class="doc-title">水泥砂漿粉刷</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09240')" data-doc-id="09240">
+                        <span class="doc-code">09240</span><span class="doc-title">纖維水泥板.矽酸鈣板.木絲水泥板.石膏板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09250')" data-doc-id="09250">
+                        <span class="doc-code">09250</span><span class="doc-title">石膏板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09260')" data-doc-id="09260">
+                        <span class="doc-code">09260</span><span class="doc-title">石膏板組裝</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09310')" data-doc-id="09310">
+                        <span class="doc-code">09310</span><span class="doc-title">鋪貼壁磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09341')" data-doc-id="09341">
+                        <span class="doc-code">09341</span><span class="doc-title">鋪地磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09511')" data-doc-id="09511">
+                        <span class="doc-code">09511</span><span class="doc-title">明架礦纖天花板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09549')" data-doc-id="09549">
+                        <span class="doc-code">09549</span><span class="doc-title">半沖孔鋁板天花板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09581')" data-doc-id="09581">
+                        <span class="doc-code">09581</span><span class="doc-title">暗架石膏天花板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09611')" data-doc-id="09611">
+                        <span class="doc-code">09611</span><span class="doc-title">整體粉光地坪處理</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09622')" data-doc-id="09622">
+                        <span class="doc-code">09622</span><span class="doc-title">環氧樹脂砂漿地坪</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09623')" data-doc-id="09623">
+                        <span class="doc-code">09623</span><span class="doc-title">塑膠地磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09637')" data-doc-id="09637">
+                        <span class="doc-code">09637</span><span class="doc-title">石材地坪</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09651')" data-doc-id="09651">
+                        <span class="doc-code">09651</span><span class="doc-title">橡膠地磚</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09851')" data-doc-id="09851">
+                        <span class="doc-code">09851</span><span class="doc-title">浮動地板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09910')" data-doc-id="09910">
+                        <span class="doc-code">09910</span><span class="doc-title">油漆</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09912')" data-doc-id="09912">
+                        <span class="doc-code">09912</span><span class="doc-title">水泥漆</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('09965')" data-doc-id="09965">
+                        <span class="doc-code">09965</span><span class="doc-title">鋼構造防火漆</span>
+                    </div>
+                </div>
+
+                <!-- 特殊設備類 -->
+                <div class="doc-category">
+                    <div class="category-header">特殊設備類</div>
+                    <div class="doc-item" onclick="selectDocument('10213')" data-doc-id="10213">
+                        <span class="doc-code">10213</span><span class="doc-title">鋁百葉窗</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('10272')" data-doc-id="10272">
+                        <span class="doc-code">10272</span><span class="doc-title">高架地板</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('11014')" data-doc-id="11014">
+                        <span class="doc-code">11014</span><span class="doc-title">洗窗機設備</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('11881')" data-doc-id="11881">
+                        <span class="doc-code">11881</span><span class="doc-title">景觀灌溉設備</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('12485')" data-doc-id="12485">
+                        <span class="doc-code">12485</span><span class="doc-title">止滑地墊</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('14210')" data-doc-id="14210">
+                        <span class="doc-code">14210</span><span class="doc-title">電動升降機</span>
+                    </div>
+                    <div class="doc-item" onclick="selectDocument('14300')" data-doc-id="14300">
+                        <span class="doc-code">14300</span><span class="doc-title">電扶梯</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-stats" id="docsStats">
+                © 2025 互助營造股份有限公司<br>
+                Developed by NUS ASAP Lab  版本: 1.1.0
+            </div>
+        </div>
+
+        <!-- 聊天區域 -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                    <div class="chat-title">
+                        <h1>互助營造施工知識AI助手</h1>
+                        <p>基於松新施工規範-109.07.07的智能問答系統</p>
+                        <p>總計 <span id="totalDocsCount">111</span> 項規範</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="online-dot"></div>
+                    <span>AI助手在線</span>
+                </div>
+                <div>
+                    已載入 <span id="referencedDocsCount">111</span> 項規範
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h3>歡迎使用互助營造施工知識AI助手</h3>
+                    <p>我已載入松新施工規範-109.07.07版本的完整文件，涵蓋111項專業規範。<br>
+                    您可以直接詢問任何施工相關問題，我會根據對應的規範條文為您提供專業解答。</p>
+                    
+                    <div class="quick-questions">
+                        <div class="quick-question" onclick="askQuestion('03210鋼筋規範的主要要求')">鋼筋規範要求</div>
+                        <div class="quick-question" onclick="askQuestion('03310結構用混凝土的品質標準')">混凝土品質標準</div>
+                        <div class="quick-question" onclick="askQuestion('07110防水工程的施工方法')">防水施工方法</div>
+                        <div class="quick-question" onclick="askQuestion('01450品質管理的檢驗程序')">品質管理程序</div>
+                        <div class="quick-question" onclick="askQuestion('01523安全衛生管理規定')">安全衛生規定</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar">AI</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="quick-questions">
+                    <div class="quick-question" onclick="askQuestion('查詢模板工程規範')">模板工程</div>
+                    <div class="quick-question" onclick="askQuestion('鋼結構銲接要求')">鋼結構銲接</div>
+                    <div class="quick-question" onclick="askQuestion('地坪工程規範')">地坪工程</div>
+                </div>
+                
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="請輸入您的施工規範相關問題..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文件預覽模態框 -->
+    <div class="doc-modal" id="docModal">
+        <div class="doc-modal-content">
+            <div class="doc-modal-header">
+                <h3 id="modalDocTitle">規範詳情</h3>
+                <button class="doc-modal-close" onclick="closeDocModal()">×</button>
+            </div>
+            <div class="doc-modal-body" id="modalDocContent">
+                載入中...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let conversationHistory = [];
+        let selectedDocCode = null;
+
+        // 頁面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            autoResizeTextarea();
+            
+            // 回車發送訊息
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // 點選模態框外部關閉
+            document.getElementById('docModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDocModal();
+                }
+            });
+        });
+
+        // 篩選文件
+        function filterDocuments() {
+            const filterValue = document.getElementById('docsFilter').value;
+            const categories = document.querySelectorAll('.doc-category');
+            
+            categories.forEach(category => {
+                const header = category.querySelector('.category-header').textContent;
+                let shouldShow = false;
+                
+                if (filterValue === 'all') {
+                    shouldShow = true;
+                } else if (filterValue === 'general' && header.includes('一般條款')) {
+                    shouldShow = true;
+                } else if (filterValue === 'management' && header.includes('管理類')) {
+                    shouldShow = true;
+                } else if (filterValue === 'construction' && (header.includes('施工類') || header.includes('土建工程類'))) {
+                    shouldShow = true;
+                } else if (filterValue === 'materials' && (header.includes('材料') || header.includes('混凝土') || header.includes('砌築') || header.includes('金屬'))) {
+                    shouldShow = true;
+                } else if (filterValue === 'finishing' && header.includes('裝修')) {
+                    shouldShow = true;
+                } else if (filterValue === 'equipment' && header.includes('設備')) {
+                    shouldShow = true;
+                }
+                
+                category.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
+        // 選擇文件
+        function selectDocument(docCode) {
+            // 移除其他文件的active狀態
+            document.querySelectorAll('.doc-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 新增目前文件的active狀態
+            document.querySelector(`[data-doc-id="${docCode}"]`).classList.add('active');
+            selectedDocCode = docCode;
+            
+            // 顯示文件預覽
+            showDocumentPreview(docCode);
+        }
+
+        // 顯示文件預覽
+        function showDocumentPreview(docCode) {
+            const modal = document.getElementById('docModal');
+            const title = document.getElementById('modalDocTitle');
+            const body = document.getElementById('modalDocContent');
+            
+            const docElement = document.querySelector(`[data-doc-id="${docCode}"]`);
+            const docTitle = docElement.querySelector('.doc-title').textContent;
+            
+            title.textContent = `${docCode} - ${docTitle}`;
+            
+            let contentHtml = `
+                <div style="margin-bottom: 24px; padding: 20px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #718096;">
+                    <h4 style="color: #4a5568; margin-bottom: 12px; font-size: 1.1rem;">規範資訊</h4>
+                    <p><strong>規範編號:</strong> ${docCode}</p>
+                    <p><strong>規範名稱:</strong> ${docTitle}</p>
+                    <p><strong>版本:</strong> 松新施工規範-109.07.07</p>
+                    <p><strong>適用範圍:</strong> 互助營造承攬工程</p>
+                    <p><strong>狀態:</strong> 現行有效</p>
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                    <h4 style="color: #4a5568; margin-bottom: 16px; font-size: 1.1rem;">規範內容說明</h4>
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <p style="line-height: 1.6; color: #4a5568; margin-bottom: 16px;">
+                            此規範為松新施工規範-109.07.07版本中的重要條文，涵蓋了相關施工作業的技術要求、材料規格、施工方法、品質標準及驗收程序。
+                        </p>
+                        <p style="line-height: 1.6; color: #4a5568; margin-bottom: 16px;">
+                            所有施工作業應嚴格依據本規範執行，如有疑義請與工程師討論確認。
+                        </p>
+                        <p style="background: #e6f3ff; padding: 12px; border-radius: 6px; color: #2c5aa0; font-size: 14px;">
+                            提示：您可以直接在聊天視窗中詢問關於此規範的具體問題，AI助手會根據規範內容為您詳細解答。
+                        </p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: #4a5568; margin-bottom: 16px; font-size: 1.1rem;">相關規範</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        ${getRelatedSpecs(docCode).map(spec => `
+                            <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer;" onclick="selectDocument('${spec.code}'); closeDocModal();">
+                                <div style="font-weight: 600; color: #4a5568; font-size: 13px;">${spec.code}</div>
+                                <div style="color: #718096; font-size: 12px; margin-top: 4px;">${spec.title}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            body.innerHTML = contentHtml;
+            modal.style.display = 'block';
+        }
+
+        // 取得相關規範
+        function getRelatedSpecs(docCode) {
+            const category = docCode.substring(0, 2);
+            const relatedSpecs = [];
+            
+            // 根據分類回傳相關規範
+            if (category === '03') {
+                relatedSpecs.push(
+                    {code: '03050', title: '混凝土基本材料及施工一般要求'},
+                    {code: '03210', title: '鋼筋'},
+                    {code: '03310', title: '結構用混凝土'}
+                );
+            } else if (category === '07') {
+                relatedSpecs.push(
+                    {code: '07110', title: '防潮防水工程'},
+                    {code: '07505', title: '屋頂防水層'},
+                    {code: '07145', title: '水泥基防水'}
+                );
+            } else if (category === '01') {
+                relatedSpecs.push(
+                    {code: '01000', title: '總則'},
+                    {code: '01450', title: '品質管理'},
+                    {code: '01523', title: '施工安全衛生及管理'}
+                );
+            } else {
+                relatedSpecs.push(
+                    {code: '01000', title: '總則'},
+                    {code: '01450', title: '品質管理'},
+                    {code: '01420', title: '參考標準'}
+                );
+            }
+            
+            return relatedSpecs;
+        }
+
+        // 關閉文件預覽
+        function closeDocModal() {
+            document.getElementById('docModal').style.display = 'none';
+            
+            // 移除所有文件的active狀態
+            document.querySelectorAll('.doc-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            selectedDocCode = null;
+        }
+
+        // 切換側邊欄
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // 自動調整輸入框高度
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        // 發送訊息
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+
+            // 清空輸入框
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // 新增使用者訊息到聊天介面
+            addMessage('user', message);
+
+            // 顯示AI正在輸入
+            showTypingIndicator();
+
+            try {
+                // 模擬AI回答 (在實際環境中這裡會呼叫真實的API)
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    // 產生模擬回答
+                    const answer = generateSimulatedAnswer(message);
+                    addMessage('bot', answer.text, answer.references);
+                    
+                    // 高亮相關規範
+                    if (answer.references && answer.references.length > 0) {
+                        highlightReferencedDocs(answer.references);
+                    }
+                }, 1500);
+
+            } catch (error) {
+                console.error('發送訊息失敗:', error);
+                hideTypingIndicator();
+                addMessage('bot', '連線失敗，請檢查網路連線後重試。', null, true);
+            }
+        }
+
+        // 產生模擬回答
+        function generateSimulatedAnswer(question) {
+            const questionLower = question.toLowerCase();
+            
+            if (questionLower.includes('鋼筋') || questionLower.includes('03210')) {
+                return {
+                    text: '根據松新施工規範-109.07.07中的03210鋼筋規範：\n\n1. **材料要求**：鋼筋應符合CNS 560 SD280W或SD420W規定\n2. **檢驗要求**：所有鋼筋進場需檢附材質證明\n3. **送樣頻率**：每40噸送樣檢驗一組\n4. **搭接規定**：梁主筋搭接長度≧40d，柱主筋搭接長度≧50d\n\n詳細規範內容請參考03210條文。',
+                    references: [
+                        {
+                            title: '03210 - 鋼筋',
+                            content: '鋼筋應符合CNS 560 SD280W或SD420W規定。所有鋼筋進場需檢附材質證明，並依規定頻率送樣檢驗。',
+                            source: '松新施工規範-109.07.07',
+                            page: '第3章'
+                        }
+                    ]
+                };
+            } else if (questionLower.includes('混凝土') || questionLower.includes('03310')) {
+                return {
+                    text: '依據03310結構用混凝土規範：\n\n1. **強度要求**：一般結構用混凝土fc\'≧280kgf/cm²\n2. **坍度控制**：12±2.5cm\n3. **檢驗頻率**：每150m³或每日至少1組\n4. **養護要求**：依據03390混凝土養護規範執行\n\n施工時需嚴格控制品質，確保達到設計強度要求。',
+                    references: [
+                        {
+                            title: '03310 - 結構用混凝土',
+                            content: '混凝土強度應符合設計要求，一般結構用混凝土fc\'≧280kgf/cm²。坍度控制在12±2.5cm範圍內。',
+                            source: '松新施工規範-109.07.07',
+                            page: '第3章'
+                        }
+                    ]
+                };
+            } else if (questionLower.includes('防水') || questionLower.includes('07110')) {
+                return {
+                    text: '根據07110防潮防水工程規範：\n\n1. **地下室防水**：採用彈性水泥砂漿+改質瀝青防水布雙層系統\n2. **屋頂防水**：依據07505屋頂防水層規範\n3. **施工要求**：基面應平整乾燥，無油污雜物\n4. **檢驗標準**：施工完成後需進行蓄水試驗\n\n防水工程關係到建築物使用壽命，請嚴格按規範施工。',
+                    references: [
+                        {
+                            title: '07110 - 防潮防水工程',
+                            content: '地下室外牆防水採用彈性水泥砂漿+改質瀝青防水布雙層防水系統。基面應平整乾燥，無油污雜物。',
+                            source: '松新施工規範-109.07.07',
+                            page: '第7章'
+                        }
+                    ]
+                };
+            } else {
+                return {
+                    text: `關於您的問題「${question}」，我已在松新施工規範-109.07.07中搜尋相關內容。\n\n建議您：\n1. 檢視左側規範目錄，找到對應的條文編號\n2. 參考01000總則了解通用要求\n3. 查閱01450品質管理相關規定\n\n如需更具體的解答，請提供更詳細的問題描述或指定規範編號。`,
+                    references: [
+                        {
+                            title: '01000 - 總則',
+                            content: '本規範適用於互助營造承攬之建築工程施工作業，包含結構體、建築裝修、機電設備等各項工程。',
+                            source: '松新施工規範-109.07.07',
+                            page: '第1章'
+                        }
+                    ]
+                };
+            }
+        }
+
+        // 快速提問
+        function askQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        // 新增訊息到聊天介面
+        function addMessage(sender, content, references = null, isError = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = sender === 'user' ? '用戶' : 'AI';
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            let referencesHtml = '';
+            if (references && references.length > 0) {
+                referencesHtml = references.map((ref, index) => `
+                    <div class="document-reference" onclick="findAndSelectSpec('${ref.title}')">
+                        <div class="doc-title">
+                            ${ref.title}
+                            <span class="reference-indicator">參考 ${index + 1}</span>
+                        </div>
+                        <div class="doc-content">${ref.content}</div>
+                        <div class="doc-source">來源: ${ref.source} ${ref.page ? '| ' + ref.page : ''}</div>
+                    </div>
+                `).join('');
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${isError ? '<div class="error-message">' + content + '</div>' : content}
+                    ${referencesHtml}
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 移除歡迎訊息
+            const welcomeMessage = chatMessages.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+        }
+
+        // 高亮引用的規範
+        function highlightReferencedDocs(references) {
+            if (!references || references.length === 0) return;
+
+            // 移除之前的高亮
+            document.querySelectorAll('.doc-item').forEach(item => {
+                item.style.background = '';
+                item.style.borderLeftColor = '';
+            });
+
+            // 高亮目前引用的規範
+            references.forEach(ref => {
+                const code = ref.title.split(' - ')[0];
+                const docItem = document.querySelector(`[data-doc-id="${code}"]`);
+                
+                if (docItem) {
+                    docItem.style.background = '#f0f4f8';
+                    docItem.style.borderLeftColor = '#718096';
+                }
+            });
+        }
+
+        // 查找並選擇規範
+        function findAndSelectSpec(title) {
+            const code = title.split(' - ')[0];
+            const docItem = document.querySelector(`[data-doc-id="${code}"]`);
+            if (docItem) {
+                // 展開側邊欄
+                document.getElementById('sidebar').classList.remove('collapsed');
+                
+                // 選擇規範
+                setTimeout(() => {
+                    selectDocument(code);
+                }, 300);
+            }
+        }
+
+        // 顯示AI輸入指示器
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            indicator.style.display = 'flex';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 停用發送按鈕
+            document.getElementById('sendButton').disabled = true;
+        }
+
+        // 隱藏AI輸入指示器
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'none';
+            
+            // 啟用發送按鈕
+            document.getElementById('sendButton').disabled = false;
+        }
+    </script>
+</body>
+</html>
